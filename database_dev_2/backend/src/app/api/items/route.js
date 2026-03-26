@@ -18,13 +18,28 @@
  * 
  * Error handling: 400 validation error, 401 unauthorized, 403 forbidden, 500 server error
  */
+
+import { itemService } from '@/services/itemService.js';
+import { success, error } from '@/lib/apiResponse.js';
+
 export async function GET(request) {
   try {
-    // TODO: Extract query params, validate permissions, fetch from itemService
-    const items = [];
-    return Response.json({ success: true, items }, { status: 200 });
-  } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    // Extract query params
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 20;
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'title';
+    const sortOrder = searchParams.get('sortOrder') || 'asc';
+
+    // TODO: Replace with actual permission check
+    // Example: if (!request.user || !['MANAGER', 'ADMIN'].includes(request.user.role)) return forbidden();
+
+    // Call service
+    const { items, total } = await itemService.listItems({ page, limit, search, sortBy, sortOrder });
+    return success({ items, total });
+  } catch (err) {
+    return error(err.message, 500);
   }
 }
 
