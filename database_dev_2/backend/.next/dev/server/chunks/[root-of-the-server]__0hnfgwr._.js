@@ -510,34 +510,38 @@ __turbopack_context__.s([
     "itemRepository",
     ()=>itemRepository
 ]);
-/**
- * Data Access Layer for Items
- * 
- * Purpose: Direct database queries for items using Prisma ORM.
- * All database operations go through here. Services call these methods.
- * 
- * Methods to implement:
- * - findMany(filters) - Get paginated/sorted/filtered items from database
- * - findById(id) - Get single item by id, throw if not found
- * - findBySkU(sku) - Get item by stock keeping unit (unique)
- * - create(data) - Create and return new item
- * - update(id, data) - Update item, return updated record
- * - delete(id) - Delete item from database
- * - incrementQuantity(id, amount) - Increase stock (for acquisitions)
- * - decrementQuantity(id, amount) - Decrease stock (for sales)
- * 
- * Using Prisma:
- * const item = await prisma.item.findUnique({ where: { id } });
- * const items = await prisma.item.findMany({ skip, take, where, orderBy });
- * const created = await prisma.item.create({ data });
- * const updated = await prisma.item.update({ where: { id }, data });
- * const deleted = await prisma.item.delete({ where: { id } });
- */ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/db.ts [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/db.ts [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
+const includeRelations = {
+    book: {
+        include: {
+            author: true,
+            publisher: true
+        }
+    },
+    map: {
+        include: {
+            cartographer: true,
+            publisher: true
+        }
+    },
+    periodical: {
+        include: {
+            publisher: true
+        }
+    },
+    price_history: true,
+    provenance: true,
+    acquisition: {
+        include: {
+            source: true
+        }
+    }
+};
 const itemRepository = {
     async findMany (filters = {}) {
         const page = Math.max(1, parseInt(filters.page) || 1);
@@ -565,7 +569,6 @@ const itemRepository = {
                 ]
             };
         }
-        // This is the "Full Data" logic
         const [items, total] = await Promise.all([
             __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].item.findMany({
                 skip,
@@ -574,36 +577,7 @@ const itemRepository = {
                 orderBy: {
                     [sortBy]: sortOrder
                 },
-                include: {
-                    // 1. Get Book data + Author + Publisher
-                    book: {
-                        include: {
-                            author: true,
-                            publisher: true
-                        }
-                    },
-                    // 2. Get Map data + Cartographer + Publisher
-                    map: {
-                        include: {
-                            cartographer: true,
-                            publisher: true
-                        }
-                    },
-                    // 3. Get Periodical data + Publisher
-                    periodical: {
-                        include: {
-                            publisher: true
-                        }
-                    },
-                    // 4. Get History and Origin data
-                    price_history: true,
-                    provenance: true,
-                    acquisition: {
-                        include: {
-                            source: true
-                        }
-                    }
-                }
+                include: includeRelations
             }),
             __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].item.count({
                 where
@@ -615,33 +589,39 @@ const itemRepository = {
         };
     },
     async findById (id) {
-    // TODO: Use prisma.item.findUnique({ where: { id } })
-    // Throw 404 error if not found
-    // Return item
-    },
-    async findBySkU (sku) {
-    // TODO: Use prisma.item.findFirst({ where: { sku } })
-    // Return item or null
+        const item = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].item.findUnique({
+            where: {
+                item_id: id
+            },
+            include: includeRelations
+        });
+        if (!item) {
+            const error = new Error(`Item with id ${id} not found`);
+            error.statusCode = 404;
+            throw error;
+        }
+        return item;
     },
     async create (data) {
-    // TODO: Use prisma.item.create({ data })
-    // Return created item
+        return await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].item.create({
+            data
+        });
     },
     async update (id, data) {
-    // TODO: Use prisma.item.update({ where: { id }, data })
-    // Return updated item
+        return await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].item.update({
+            where: {
+                item_id: id
+            },
+            data,
+            include: includeRelations
+        });
     },
     async delete (id) {
-    // TODO: Use prisma.item.delete({ where: { id } })
-    // Return deleted item
-    },
-    async incrementQuantity (id, amount) {
-    // TODO: Get current quantity, add amount
-    // Use prisma.item.update({ where: { id }, data: { quantity: newQty } })
-    },
-    async decrementQuantity (id, amount) {
-    // TODO: Get current quantity, subtract amount (check >= 0)
-    // Use prisma.item.update({ where: { id }, data: { quantity: newQty } })
+        return await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].item.delete({
+            where: {
+                item_id: id
+            }
+        });
     }
 };
 __turbopack_async_result__();
@@ -655,99 +635,56 @@ __turbopack_context__.s([
     "itemService",
     ()=>itemService
 ]);
-/**
- * Business logic layer for Items
- * 
- * Purpose: Handles all item-related business logic, coordinates between
- * repositories (database) and API routes. Contains validation, calculations,
- * and business rule enforcement.
- * 
- * Methods to implement:
- * - listItems(filters) - Get paginated, sorted, and filtered items
- * - createItem(data) - Create new item, validate constraints
- * - getItem(id) - Get single item by id
- * - updateItem(id, data) - Update item, handle inventory side effects
- * - deleteItem(id) - Delete item, check if safe to delete
- * - getLowStockItems() - Get items below minimum threshold
- * 
- * Business rules to enforce:
- * - Item SKU must be unique
- * - All prices must be positive
- * - Quantity cannot be negative
- * - Validate name/description length and format
- * - Automatically calculate total value (quantity * cost)
- */ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/repositories/itemRepository.js [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/repositories/itemRepository.js [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
+const toJSON = (item)=>({
+        ...item,
+        acquisition_cost: item.acquisition_cost ? Number(item.acquisition_cost) : 0,
+        selling_price: item.selling_price ? Number(item.selling_price) : 0,
+        acquisition_date: item.acquisition_date.toISOString().split('T')[0],
+        item_category: item.book ? 'BOOK' : item.map ? 'MAP' : item.periodical ? 'PERIODICAL' : 'GENERAL'
+    });
 const itemService = {
-    /**
-   * List all items with pagination and filtering
-   * @param {Object} filters - {page, limit, search, sortBy, sortOrder}
-   * @returns {Promise<{items: Array, total: number}>}
-   */ async listItems (filters) {
-        // 1. Get raw data from Repository
+    async listItems (filters) {
         const { items, total } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].findMany(filters);
-        // 2. Transform into Clean JSON format
-        const jsonItems = items.map((item)=>{
-            // Handle Prisma Decimals (convert to standard numbers)
-            const cost = item.acquisition_cost ? Number(item.acquisition_cost) : 0;
-            const price = item.selling_price ? Number(item.selling_price) : 0;
-            return {
-                ...item,
-                // Replace database-specific types with JS primitives
-                acquisition_cost: cost,
-                selling_price: price,
-                acquisition_date: item.acquisition_date.toISOString().split('T')[0],
-                // Helper field for the UI to know which icon/layout to show
-                item_category: item.book ? 'BOOK' : item.map ? 'MAP' : item.periodical ? 'PERIODICAL' : 'GENERAL'
-            };
-        });
         return {
-            items: jsonItems,
+            items: items.map(toJSON),
             total
         };
     },
-    /**
-   * Create a new item
-   * @param {Object} data - Validated item data
-   * @returns {Promise<Object>} Created item
-   */ async createItem (data) {
-    // TODO: Validate business rules (unique SKU, positive prices)
-    // Call itemRepository.create(data)
-    // Return created item
+    async getItem (id) {
+        const item = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].findById(id);
+        return toJSON(item);
     },
-    /**
-   * Get single item
-   * @param {string} id - Item ID
-   * @returns {Promise<Object>} Item details
-   */ async getItem (id) {
-    // TODO: Call itemRepository.findById(id)
-    // Throw 404 if not found
-    // Return item
+    async createItem (data) {
+        if (!data.title) throw Object.assign(new Error('Title is required'), {
+            statusCode: 400
+        });
+        if (!data.condition) throw Object.assign(new Error('Condition is required'), {
+            statusCode: 400
+        });
+        if (data.acquisition_cost <= 0) throw Object.assign(new Error('Acquisition cost must be positive'), {
+            statusCode: 400
+        });
+        if (data.selling_price <= 0) throw Object.assign(new Error('Selling price must be positive'), {
+            statusCode: 400
+        });
+        const item = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].create(data);
+        return toJSON(item);
     },
-    /**
-   * Update item
-   * @param {string} id - Item ID
-   * @param {Object} data - Updated item data
-   * @returns {Promise<Object>} Updated item
-   */ async updateItem (id, data) {
-    // TODO: Validate item exists first
-    // Validate business rules on updated data
-    // Call itemRepository.update(id, data)
-    // Return updated item
+    async updateItem (id, data) {
+        await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].findById(id);
+        const updated = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].update(id, data);
+        return toJSON(updated);
     },
-    /**
-   * Delete item
-   * @param {string} id - Item ID
-   * @returns {Promise<boolean>} Success flag
-   */ async deleteItem (id) {
-    // TODO: Check if item has recent transactions (acquisitions/sales)
-    // Prevent deletion if associated records exist
-    // Call itemRepository.delete(id)
-    // Return true
+    async deleteItem (id) {
+        await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].findById(id);
+        await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$repositories$2f$itemRepository$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemRepository"].delete(id);
+        return true;
     }
 };
 __turbopack_async_result__();
@@ -832,26 +769,7 @@ __turbopack_context__.s([
     "POST",
     ()=>POST
 ]);
-/**
- * GET /api/items - List all items (with pagination, filtering, sorting)
- * POST /api/items - Create a new item
- * 
- * GET Implementation:
- * 1. Extract query params: page, limit, search, sortBy, sortOrder
- * 2. Check user permissions: require MANAGER or ADMIN role
- * 3. Call itemService.listItems(filters)
- * 4. Return paginated list with total count
- * 
- * POST Implementation:
- * 1. Extract request body: name, description, sku, price, quantity, etc.
- * 2. Validate using validateItemPayload() from validators/itemValidator.js
- * 3. Check user permissions: require MANAGER or ADMIN role
- * 4. Call itemService.createItem(validatedData)
- * 5. Log audit event: {action: 'CREATE_ITEM', resourceId, userId}
- * 6. Return created item with 201 status
- * 
- * Error handling: 400 validation error, 401 unauthorized, 403 forbidden, 500 server error
- */ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/services/itemService.js [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/services/itemService.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/apiResponse.js [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__
@@ -861,16 +779,12 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 async function GET(request) {
     try {
-        // Extract query params
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get('page')) || 1;
-        const limit = parseInt(searchParams.get('limit')) || 20;
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20');
         const search = searchParams.get('search') || '';
         const sortBy = searchParams.get('sortBy') || 'title';
         const sortOrder = searchParams.get('sortOrder') || 'asc';
-        // TODO: Replace with actual permission check
-        // Example: if (!request.user || !['MANAGER', 'ADMIN'].includes(request.user.role)) return forbidden();
-        // Call service
         const { items, total } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemService"].listItems({
             page,
             limit,
@@ -883,25 +797,16 @@ async function GET(request) {
             total
         });
     } catch (err) {
-        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["error"])(err.message, 500);
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["error"])(err.message, err.statusCode || 500);
     }
 }
 async function POST(request) {
     try {
-        // TODO: Extract body, validate using validateItemPayload, create via itemService
-        return Response.json({
-            success: false,
-            error: "Not implemented"
-        }, {
-            status: 501
-        });
-    } catch (error) {
-        return Response.json({
-            success: false,
-            error: error.message
-        }, {
-            status: 500
-        });
+        const body = await request.json();
+        const item = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemService"].createItem(body);
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["success"])(item, 201);
+    } catch (err) {
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["error"])(err.message, err.statusCode || 500);
     }
 }
 __turbopack_async_result__();

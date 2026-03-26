@@ -37,7 +37,7 @@ module.exports = mod;
 }),
 "[project]/src/services/itemService.js [app-route] (ecmascript)", ((__turbopack_context__, module, exports) => {
 
-const e = new Error("Could not parse module '[project]/src/services/itemService.js'\n\nExpected 'from', got 'export'");
+const e = new Error("Could not parse module '[project]/src/services/itemService.js'\n\nExpected ',', got ':'");
 e.code = 'MODULE_UNPARSABLE';
 throw e;
 }),
@@ -119,41 +119,18 @@ __turbopack_context__.s([
     "POST",
     ()=>POST
 ]);
-/**
- * GET /api/items - List all items (with pagination, filtering, sorting)
- * POST /api/items - Create a new item
- * 
- * GET Implementation:
- * 1. Extract query params: page, limit, search, sortBy, sortOrder
- * 2. Check user permissions: require MANAGER or ADMIN role
- * 3. Call itemService.listItems(filters)
- * 4. Return paginated list with total count
- * 
- * POST Implementation:
- * 1. Extract request body: name, description, sku, price, quantity, etc.
- * 2. Validate using validateItemPayload() from validators/itemValidator.js
- * 3. Check user permissions: require MANAGER or ADMIN role
- * 4. Call itemService.createItem(validatedData)
- * 5. Log audit event: {action: 'CREATE_ITEM', resourceId, userId}
- * 6. Return created item with 201 status
- * 
- * Error handling: 400 validation error, 401 unauthorized, 403 forbidden, 500 server error
- */ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/services/itemService.js [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/services/itemService.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/apiResponse.js [app-route] (ecmascript)");
 ;
 ;
 async function GET(request) {
     try {
-        // Extract query params
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get('page')) || 1;
-        const limit = parseInt(searchParams.get('limit')) || 20;
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20');
         const search = searchParams.get('search') || '';
         const sortBy = searchParams.get('sortBy') || 'title';
         const sortOrder = searchParams.get('sortOrder') || 'asc';
-        // TODO: Replace with actual permission check
-        // Example: if (!request.user || !['MANAGER', 'ADMIN'].includes(request.user.role)) return forbidden();
-        // Call service
         const { items, total } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemService"].listItems({
             page,
             limit,
@@ -166,25 +143,16 @@ async function GET(request) {
             total
         });
     } catch (err) {
-        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["error"])(err.message, 500);
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["error"])(err.message, err.statusCode || 500);
     }
 }
 async function POST(request) {
     try {
-        // TODO: Extract body, validate using validateItemPayload, create via itemService
-        return Response.json({
-            success: false,
-            error: "Not implemented"
-        }, {
-            status: 501
-        });
-    } catch (error) {
-        return Response.json({
-            success: false,
-            error: error.message
-        }, {
-            status: 500
-        });
+        const body = await request.json();
+        const item = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$itemService$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["itemService"].createItem(body);
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["success"])(item, 201);
+    } catch (err) {
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$apiResponse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["error"])(err.message, err.statusCode || 500);
     }
 }
 }),
