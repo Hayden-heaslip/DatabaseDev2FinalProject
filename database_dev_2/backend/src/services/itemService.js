@@ -20,6 +20,8 @@
  * - Validate name/description length and format
  * - Automatically calculate total value (quantity * cost)
  */
+
+import { itemRepository } from "../repositories/itemRepository";
 export const itemService = {
   /**
    * List all items with pagination and filtering
@@ -27,11 +29,28 @@ export const itemService = {
    * @returns {Promise<{items: Array, total: number}>}
    */
   async listItems(filters) {
-    // TODO: Call itemRepository.findMany(filters)
-    // Apply pagination: limit and offset
-    // Handle search: filter by name, sku, description
-    // Handle sorting: by name, price, quantity, createdAt
-    // Return {items: [], total: 0}
+    // 1. Get raw data from Repository
+    const { items, total } = await itemRepository.findMany(filters);
+
+    // 2. Transform into Clean JSON format
+    const jsonItems = items.map(item => {
+      // Handle Prisma Decimals (convert to standard numbers)
+      const cost = item.acquisition_cost ? Number(item.acquisition_cost) : 0;
+      const price = item.selling_price ? Number(item.selling_price) : 0;
+
+      return {
+        ...item,
+        // Replace database-specific types with JS primitives
+        acquisition_cost: cost,
+        selling_price: price,
+        acquisition_date: item.acquisition_date.toISOString().split('T')[0], // YYYY-MM-DD
+        
+        // Helper field for the UI to know which icon/layout to show
+        item_category: item.book ? 'BOOK' : item.map ? 'MAP' : item.periodical ? 'PERIODICAL' : 'GENERAL'
+      };
+    });
+
+    return { items: jsonItems, total };
   },
 
   /**

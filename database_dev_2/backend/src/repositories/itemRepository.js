@@ -21,12 +21,68 @@
  * const updated = await prisma.item.update({ where: { id }, data });
  * const deleted = await prisma.item.delete({ where: { id } });
  */
+import { db } from '../lib/db';
+
 export const itemRepository = {
   async findMany(filters = {}) {
-    // TODO: Extract skip/take from pagination (page, limit)
-    // Build where clause for search, sorting
-    // Use prisma.item.findMany({ skip, take, where, orderBy })
-    // Return {items: [], total: count}
+    const page = Math.max(1, parseInt(filters.page) || 1);
+    const limit = Math.max(1, parseInt(filters.limit) || 20);
+    const skip = (page - 1) * limit;
+    
+    const search = (filters.search || '').trim();
+    const sortBy = filters.sortBy || 'title';
+    const sortOrder = (filters.sortOrder || 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc';
+
+    let where = {};
+    if (search) {
+      where = {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
+        ]
+      };
+    }
+
+    // This is the "Full Data" logic
+    const [items, total] = await Promise.all([
+      db.item.findMany({
+        skip,
+        take: limit,
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          // 1. Get Book data + Author + Publisher
+          book: {
+            include: {
+              author: true,
+              publisher: true
+            }
+          },
+          // 2. Get Map data + Cartographer + Publisher
+          map: {
+            include: {
+              cartographer: true,
+              publisher: true
+            }
+          },
+          // 3. Get Periodical data + Publisher
+          periodical: {
+            include: {
+              publisher: true
+            }
+          },
+          // 4. Get History and Origin data
+          price_history: true,
+          provenance: true,
+          acquisition: {
+            include: { source: true }
+          }
+        }
+      }),
+      db.item.count({ where })
+    ]);
+
+    return { items, total };
   },
 
   async findById(id) {

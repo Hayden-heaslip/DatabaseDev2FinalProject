@@ -8,6 +8,6 @@ export default defineConfig({
   },
   datasource: {
     // Use the pooled URL to help with connection stability
-    url: process.env.DATABASE_URL, 
-  },
+    url: process.env.DIRECT_URL, // was DATABASE_URL
+  }
 })
