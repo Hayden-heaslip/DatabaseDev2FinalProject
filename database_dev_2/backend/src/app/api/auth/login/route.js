@@ -10,16 +10,13 @@ export async function OPTIONS(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const email = String(body.email || "").trim().toLowerCase();
-    const password = String(body.password || "");
+    const email = String(body?.email || "").trim();
+    const password = String(body?.password || "");
 
     if (!email || !password) {
       return withCors(
         req,
-        NextResponse.json(
-        { message: "Email and password are required" },
-        { status: 400 }
-        ),
+        NextResponse.json({ success: false, error: "Email and password are required" }, { status: 400 }),
         ["POST", "OPTIONS"]
       );
     }
@@ -30,16 +27,11 @@ export async function POST(req) {
       userId: user.userId,
       email: user.email,
       role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
 
-    const response = NextResponse.json(
-      {
-        message: "Login successful",
-        user,
-      },
-      { status: 200 }
-    );
-
+    const response = NextResponse.json({ success: true, user }, { status: 200 });
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
@@ -52,13 +44,8 @@ export async function POST(req) {
 
     return withCors(req, response, ["POST", "OPTIONS"]);
   } catch (error) {
-    return withCors(
-      req,
-      NextResponse.json(
-        { message: error.message || "Login failed" },
-        { status: 401 }
-      ),
-      ["POST", "OPTIONS"]
-    );
+    const message = error instanceof Error ? error.message : "Login failed";
+    const status = message === "Invalid email or password" ? 401 : 500;
+    return withCors(req, NextResponse.json({ success: false, error: message }, { status }), ["POST", "OPTIONS"]);
   }
 }

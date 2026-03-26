@@ -1,35 +1,39 @@
-// Contains the logged in users
-
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+/** Logged-in user/session/role state. */
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getCurrentUser, login as loginApi, logout as logoutApi } from "@/api/auth";
 
-type User = {
+type AppUser = {
   userId: number;
   email: string;
   firstName: string;
   lastName: string;
-  role: "admin" | "manager" | "employee";
+  role: string;
 };
 
-type AuthContextType = {
-  user: User | null;
+type AuthContextValue = {
+  user: AppUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: AppUser | null) => void;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getCurrentUser()
-      .then((u) => {
-        setUser(u);
+      .then((response) => {
+        if (response.success && response.user) {
+          setUser(response.user);
+        } else {
+          setUser(null);
+        }
       })
       .catch(() => {
         setUser(null);
@@ -40,8 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function login(email: string, password: string) {
-    const user = await loginApi(email, password);
-    setUser(user);
+    const response = await loginApi(email, password);
+    if (!response.success || !response.user) {
+      throw new Error(response.error || "Login failed");
+    }
+    setUser(response.user);
   }
 
   async function logout() {
@@ -49,15 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }
 
-  return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => ({ user, loading, login, logout, setUser }), [user, loading]);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
 }

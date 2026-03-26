@@ -1,59 +1,52 @@
-// Dummy auth users for early project phase (no DB dependency).
-const DUMMY_USERS = [
-  {
-    userId: 1,
-    email: "connor@britannicus.local",
-    password: "Connor123!",
-    firstName: "Connor",
-    lastName: "Whyte",
-    role: "admin",
-    isActive: true,
-  },
-  {
-    userId: 2,
-    email: "luciia@britannicus.local",
-    password: "Luciia123!",
-    firstName: "Luciia",
-    lastName: "Whyte",
-    role: "manager",
-    isActive: true,
-  },
-  {
-    userId: 3,
-    email: "derek@britannicus.local",
-    password: "Derek123!",
-    firstName: "Derek",
-    lastName: "Arthurs",
-    role: "employee",
-    isActive: true,
-  },
-];
+import bcrypt from "bcryptjs";
+import { createPrismaClient } from "@/lib/prisma";
 
-function toPublicUser(user) {
+function toPublicUser(userRecord) {
+  const roleName = userRecord.role?.role_name || "employee";
   return {
-    userId: user.userId,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    role: user.role,
+    userId: userRecord.user_id,
+    email: userRecord.email,
+    firstName: userRecord.first_name,
+    lastName: userRecord.last_name,
+    role: String(roleName).toLowerCase(),
   };
 }
 
 export async function loginUser(email, password) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const rawPassword = String(password || "");
+  const prisma = createPrismaClient();
 
-  const user = DUMMY_USERS.find((entry) => entry.email === normalizedEmail);
+  const user = await prisma.user.findFirst({
+    where: { email: normalizedEmail },
+    include: { role: true },
+  });
 
-  if (!user || !user.isActive || user.password !== rawPassword) {
+  if (!user || !user.is_active) {
     throw new Error("Invalid email or password");
   }
+
+  const isValidPassword = await bcrypt.compare(rawPassword, user.password_hash);
+  if (!isValidPassword) {
+    throw new Error("Invalid email or password");
+  }
+
+  await prisma.user.update({
+    where: { user_id: user.user_id },
+    data: { last_login: new Date() },
+  });
 
   return toPublicUser(user);
 }
 
 export async function getUserById(userId) {
   const parsedId = Number(userId);
-  const user = DUMMY_USERS.find((entry) => entry.userId === parsedId && entry.isActive);
+  if (!Number.isInteger(parsedId) || parsedId <= 0) return null;
+
+  const prisma = createPrismaClient();
+  const user = await prisma.user.findFirst({
+    where: { user_id: parsedId, is_active: true },
+    include: { role: true },
+  });
   return user ? toPublicUser(user) : null;
 }

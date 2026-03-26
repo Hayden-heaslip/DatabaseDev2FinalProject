@@ -1,14 +1,12 @@
 import 'dotenv/config';
-import ws from 'ws';
-import { neonConfig, Pool } from '@neondatabase/serverless';
-import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import { PrismaClient } from '@prisma/client';
-
-// 1. Assign WebSocket for Port 443 tunneling
-neonConfig.webSocketConstructor = ws;
+import bcrypt from "bcryptjs";
 
 // 2. Grab the URL and force it to be a clean string
-const connectionString = (process.env.DIRECT_URL || process.env.DATABASE_URL || "").trim();
+const rawConnectionString = (process.env.DIRECT_URL || process.env.DATABASE_URL || "").trim();
+const connectionString = rawConnectionString.replace(/^["']|["']$/g, "");
 
 if (!connectionString) {
   throw new Error("❌ DATABASE_URL or DIRECT_URL is missing from .env");
@@ -18,21 +16,39 @@ if (!connectionString) {
 // This is a workaround for the 'localhost' fallback bug
 const pool = new Pool({ connectionString: connectionString }); 
 
-const adapter = new PrismaNeon(pool as any);
+const adapter = new PrismaPg(pool as any);
 const prisma = new PrismaClient({ adapter });
 
 // ... rest of your main() function
 async function main() {
 
   console.log('--- Cleaning up database ---');
-  // Delete in reverse order of dependencies to avoid foreign key errors
-  await prisma.book.deleteMany();
-  await prisma.map.deleteMany();
-  await prisma.periodical.deleteMany();
-  await prisma.item.deleteMany();
-  await prisma.author.deleteMany();
-  await prisma.cartographer.deleteMany();
-  await prisma.publisher.deleteMany();
+  // Reset seeded tables in one pass to avoid FK-order issues.
+  await prisma.$executeRawUnsafe(`
+    TRUNCATE TABLE
+      "sales",
+      "acquisition",
+      "price_history",
+      "provenance",
+      "book",
+      "map",
+      "periodical",
+      "item",
+      "user",
+      "role",
+      "author",
+      "cartographer",
+      "publisher",
+      "payment_method",
+      "customer_address",
+      "address",
+      "customer",
+      "dealer",
+      "collector",
+      "estate",
+      "source"
+    RESTART IDENTITY CASCADE
+  `);
   console.log('--- Cleanup complete ---');
 
 
@@ -52,6 +68,53 @@ async function main() {
   const lackington   = await prisma.publisher.create({ data: { name: 'Lackington, Hughes' }})
   const egerton      = await prisma.publisher.create({ data: { name: 'T. Egerton' }})
   const arrowsmithCo = await prisma.publisher.create({ data: { name: 'John Arrowsmith & Co.' }})
+
+  // AUTH ROLES + USERS
+  const adminRole = await prisma.role.create({
+    data: { role_name: "admin", description: "System administrator" },
+  });
+  const managerRole = await prisma.role.create({
+    data: { role_name: "manager", description: "Store manager" },
+  });
+  const employeeRole = await prisma.role.create({
+    data: { role_name: "employee", description: "Store employee" },
+  });
+
+  const connorPassword = await bcrypt.hash("Connor123!", 10);
+  const luciiaPassword = await bcrypt.hash("Luciia123!", 10);
+  const derekPassword = await bcrypt.hash("Derek123!", 10);
+
+  await prisma.user.createMany({
+    data: [
+      {
+        role_id: adminRole.role_id,
+        first_name: "Connor",
+        last_name: "Whyte",
+        email: "connor@britannicus.local",
+        password_hash: connorPassword,
+        is_active: true,
+        created_date: new Date(),
+      },
+      {
+        role_id: managerRole.role_id,
+        first_name: "Luciia",
+        last_name: "Whyte",
+        email: "luciia@britannicus.local",
+        password_hash: luciiaPassword,
+        is_active: true,
+        created_date: new Date(),
+      },
+      {
+        role_id: employeeRole.role_id,
+        first_name: "Derek",
+        last_name: "Arthurs",
+        email: "derek@britannicus.local",
+        password_hash: derekPassword,
+        is_active: true,
+        created_date: new Date(),
+      },
+    ],
+  });
 
   // ITEMS
   const hobbit = await prisma.item.create({ data: {
