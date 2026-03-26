@@ -8,12 +8,11 @@
  * - Submit handler calling src/api/items.ts
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { ItemForm } from "@/components/items/ItemForm";
 
 export default function CreateItemPage() {
   return (
     <AppShell pageTitle="Create Item" pageDescription="Add a new item to inventory.">
-      <ItemForm mode="create" />
+      <p className="text-sm text-zinc-600">Item form (create)</p>
     </AppShell>
   );
 }

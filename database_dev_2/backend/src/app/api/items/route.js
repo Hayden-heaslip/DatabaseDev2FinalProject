@@ -1,28 +1,66 @@
-import { itemService } from '@/services/itemService.js';
-import { success, error } from '@/lib/apiResponse.js';
+import { createPrismaClient } from "@/lib/prisma";
+import { preflight, withCors } from "@/lib/cors";
+
+export async function OPTIONS(req) {
+  return preflight(req, ["GET", "POST", "OPTIONS"]);
+}
 
 export async function GET(request) {
+  const prisma = createPrismaClient();
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const search = searchParams.get('search') || '';
-    const sortBy = searchParams.get('sortBy') || 'title';
-    const sortOrder = searchParams.get('sortOrder') || 'asc';
+    const search = searchParams.get("search")?.trim();
 
-    const { items, total } = await itemService.listItems({ page, limit, search, sortBy, sortOrder });
-    return success({ items, total });
-  } catch (err) {
-    return error(err.message, err.statusCode || 500);
+    const items = await prisma.item.findMany({
+      where: search
+        ? {
+            OR: [
+              { title: { contains: search, mode: "insensitive" } },
+              { description: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+      include: {
+        book: true,
+        map: true,
+        periodical: true,
+        sales: {
+          select: { sales_id: true },
+          take: 1,
+        },
+      },
+      orderBy: { item_id: "desc" },
+      take: 50,
+    });
+
+    const formatted = items.map((item) => ({
+      itemId: item.item_id,
+      title: item.title,
+      category: item.book ? "Book" : item.map ? "Map" : item.periodical ? "Magazine" : "Other",
+      condition: item.condition,
+      askingPrice: Number(item.selling_price),
+      status: item.sales.length > 0 ? "Sold" : "In Stock",
+    }));
+
+    return withCors(request, Response.json({ success: true, items: formatted }, { status: 200 }), [
+      "GET",
+      "POST",
+      "OPTIONS",
+    ]);
+  } catch (error) {
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to load items" }, { status: 500 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   }
 }
 
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const item = await itemService.createItem(body);
-    return success(item, 201);
-  } catch (err) {
-    return error(err.message, err.statusCode || 500);
+    // TODO: Extract body, validate using validateItemPayload, create via itemService
+    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
+  } catch (error) {
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 }

@@ -8,7 +8,6 @@
  * - Linked acquisitions/history
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { SourceDetails } from "@/components/sources/SourceDetails";
 
 type SourceDetailsPageProps = {
   params: {
@@ -19,7 +18,7 @@ type SourceDetailsPageProps = {
 export default function SourceDetailsPage({ params }: SourceDetailsPageProps) {
   return (
     <AppShell pageTitle={`Source #${params.id}`} pageDescription="View source profile and activity.">
-      <SourceDetails sourceId={params.id} />
+      <p className="text-sm text-zinc-600">Source details for #{params.id}.</p>
     </AppShell>
   );
 }

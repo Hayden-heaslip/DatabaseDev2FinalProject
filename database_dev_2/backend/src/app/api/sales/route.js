@@ -1,16 +1,43 @@
-/**
- * GET /api/sales - List all sales transactions (with pagination, filtering, sorting)
- * POST /api/sales - Create a new sale transaction
- */
+import { createPrismaClient } from "@/lib/prisma";
+import { preflight, withCors } from "@/lib/cors";
+
+export async function OPTIONS(req) {
+  return preflight(req, ["GET", "POST", "OPTIONS"]);
+}
+
 export async function GET(request) {
+  const prisma = createPrismaClient();
   try {
-    // TODO: Extract query params (page, limit, dateFrom, dateTo, customerId, status)
-    // Validate permissions (READ_SALES), call saleService.listSales
-    // Return paginated list with revenue totals
-    const sales = [];
-    return Response.json({ success: true, sales }, { status: 200 });
+    const sales = await prisma.sales.findMany({
+      include: {
+        customer: true,
+        item: true,
+        user: true,
+      },
+      orderBy: { sales_date: "desc" },
+      take: 50,
+    });
+
+    const formatted = sales.map((sale) => ({
+      salesId: sale.sales_id,
+      date: sale.sales_date,
+      customer: `${sale.customer.first_name} ${sale.customer.last_name}`,
+      item: sale.item.title,
+      salePrice: Number(sale.sale_price),
+      soldBy: `${sale.user.first_name} ${sale.user.last_name}`,
+    }));
+
+    return withCors(request, Response.json({ success: true, sales: formatted }, { status: 200 }), [
+      "GET",
+      "POST",
+      "OPTIONS",
+    ]);
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to load sales" }, { status: 500 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   }
 }
 

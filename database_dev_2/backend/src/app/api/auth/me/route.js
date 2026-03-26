@@ -1,20 +1,44 @@
-/**
- * GET /api/auth/me
- * Get current user - Returns authenticated user's profile
- * 
- * Implementation needed:
- * 1. Extract JWT token from Authorization header (Bearer token)
- * 2. Verify token using lib/auth.js verifyToken()
- * 3. Extract user id from decoded token
- * 4. Query database via userRepository.findById(userId)
- * 5. Return user object with: id, email, name, role
- * 6. Error handling: 401 Unauthorized if no token or invalid
- */
-export async function GET(request) {
-  try {
-    // TODO: Implement get current user logic
-    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
-  } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+import { NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth";
+import { getUserById } from "@/services/authService";
+import { preflight, withCors } from "@/lib/cors";
+
+export async function OPTIONS(req) {
+  return preflight(req, ["GET", "OPTIONS"]);
+}
+
+export async function GET(req) {
+  const sessionUser = await getSessionUser();
+
+  if (!sessionUser) {
+    return withCors(
+      req,
+      NextResponse.json({ message: "Unauthorized" }, { status: 401 }),
+      ["GET", "OPTIONS"]
+    );
   }
+
+  const user = await getUserById(sessionUser.userId);
+
+  if (!user) {
+    return withCors(
+      req,
+      NextResponse.json({ message: "Unauthorized" }, { status: 401 }),
+      ["GET", "OPTIONS"]
+    );
+  }
+
+  return withCors(
+    req,
+    NextResponse.json({
+      user: {
+        userId: user.userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+    }),
+    ["GET", "OPTIONS"]
+  );
 }

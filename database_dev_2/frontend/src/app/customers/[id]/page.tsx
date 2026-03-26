@@ -8,7 +8,6 @@
  * - Provenance notes tied to customer activity
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { CustomerDetails } from "@/components/customers/CustomerDetails";
 
 type CustomerDetailsPageProps = {
   params: {
@@ -19,7 +18,7 @@ type CustomerDetailsPageProps = {
 export default function CustomerDetailsPage({ params }: CustomerDetailsPageProps) {
   return (
     <AppShell pageTitle={`Customer #${params.id}`} pageDescription="View customer details and history.">
-      <CustomerDetails customerId={params.id} />
+      <p className="text-sm text-zinc-600">Customer details for #{params.id}.</p>
     </AppShell>
   );
 }

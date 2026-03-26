@@ -8,7 +8,6 @@
  * - Provenance, condition, and image gallery
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { ItemDetails } from "@/components/items/ItemDetails";
 
 type ItemDetailsPageProps = {
   params: {
@@ -19,7 +18,7 @@ type ItemDetailsPageProps = {
 export default function ItemDetailsPage({ params }: ItemDetailsPageProps) {
   return (
     <AppShell pageTitle={`Item #${params.id}`} pageDescription="View detailed item record.">
-      <ItemDetails itemId={params.id} />
+      <p className="text-sm text-zinc-600">Item details for #{params.id}.</p>
     </AppShell>
   );
 }

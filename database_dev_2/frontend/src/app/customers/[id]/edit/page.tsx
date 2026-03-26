@@ -8,7 +8,6 @@
  * - Validation and update request
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { CustomerForm } from "@/components/customers/CustomerForm";
 
 type EditCustomerPageProps = {
   params: {
@@ -19,7 +18,7 @@ type EditCustomerPageProps = {
 export default function EditCustomerPage({ params }: EditCustomerPageProps) {
   return (
     <AppShell pageTitle={`Edit Customer #${params.id}`} pageDescription="Update customer profile.">
-      <CustomerForm mode="edit" customerId={params.id} />
+      <p className="text-sm text-zinc-600">Customer form (edit) for #{params.id}</p>
     </AppShell>
   );
 }

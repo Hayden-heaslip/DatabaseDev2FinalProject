@@ -2,7 +2,7 @@ import 'dotenv/config';
 import ws from 'ws';
 import { neonConfig, Pool } from '@neondatabase/serverless';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 // 1. Assign WebSocket for Port 443 tunneling
 neonConfig.webSocketConstructor = ws;

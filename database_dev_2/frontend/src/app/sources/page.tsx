@@ -8,12 +8,11 @@
  * - Links to view/create/edit
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { SourcesTable } from "@/components/sources/SourcesTable";
 
 export default function SourcesPage() {
   return (
     <AppShell pageTitle="Sources" pageDescription="Manage dealers, collectors, and other sources.">
-      <SourcesTable />
+      <p className="text-sm text-zinc-600">Sources table goes here.</p>
     </AppShell>
   );
 }

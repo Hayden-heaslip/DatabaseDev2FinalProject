@@ -1,16 +1,61 @@
-/**
- * GET /api/customers - List all customers (with pagination, filtering, sorting)
- * POST /api/customers - Create a new customer
- */
+import { createPrismaClient } from "@/lib/prisma";
+import { preflight, withCors } from "@/lib/cors";
+
+export async function OPTIONS(req) {
+  return preflight(req, ["GET", "POST", "OPTIONS"]);
+}
+
 export async function GET(request) {
+  const prisma = createPrismaClient();
   try {
-    // TODO: Extract query params (page, limit, search, sortBy), validate permissions
-    // Call customerService.listCustomers(filters)
-    // Return paginated list with total count
-    const customers = [];
-    return Response.json({ success: true, customers }, { status: 200 });
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search")?.trim();
+
+    const customers = await prisma.customer.findMany({
+      where: search
+        ? {
+            OR: [
+              { first_name: { contains: search, mode: "insensitive" } },
+              { last_name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+      include: {
+        sales: {
+          select: { sales_date: true },
+        },
+      },
+      orderBy: { customer_id: "desc" },
+      take: 50,
+    });
+
+    const formatted = customers.map((customer) => {
+      const lastSale = customer.sales
+        .map((s) => s.sales_date)
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+
+      return {
+        customerId: customer.customer_id,
+        name: `${customer.first_name} ${customer.last_name}`,
+        email: customer.email,
+        phone: customer.phone,
+        purchases: customer.sales.length,
+        lastPurchase: lastSale ? new Date(lastSale).toISOString() : null,
+      };
+    });
+
+    return withCors(
+      request,
+      Response.json({ success: true, customers: formatted }, { status: 200 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to load customers" }, { status: 500 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   }
 }
 

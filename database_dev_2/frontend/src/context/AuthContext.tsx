@@ -1,26 +1,63 @@
+// Contains the logged in users
+
 "use client";
 
-/** Logged-in user/session/role state. */
-import { createContext, useContext, useMemo, useState } from "react";
-import type { AppUser } from "@/types";
+import { createContext, useContext, useEffect, useState } from "react";
+import { getCurrentUser, login as loginApi, logout as logoutApi } from "@/api/auth";
 
-type AuthContextValue = {
-  user: AppUser | null;
-  setUser: (user: AppUser | null) => void;
+type User = {
+  userId: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: "admin" | "manager" | "employee";
 };
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+type AuthContextType = {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const value = useMemo(() => ({ user, setUser }), [user]);
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getCurrentUser()
+      .then((u) => {
+        setUser(u);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  async function login(email: string, password: string) {
+    const user = await loginApi(email, password);
+    setUser(user);
+  }
+
+  async function logout() {
+    await logoutApi();
+    setUser(null);
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
+  return ctx;
 }

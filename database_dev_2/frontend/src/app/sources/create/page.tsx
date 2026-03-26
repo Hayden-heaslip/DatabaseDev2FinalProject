@@ -8,12 +8,11 @@
  * - Save action
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { SourceForm } from "@/components/sources/SourceForm";
 
 export default function CreateSourcePage() {
   return (
     <AppShell pageTitle="Create Source" pageDescription="Add a new source/seller profile.">
-      <SourceForm mode="create" />
+      <p className="text-sm text-zinc-600">Source form (create)</p>
     </AppShell>
   );
 }

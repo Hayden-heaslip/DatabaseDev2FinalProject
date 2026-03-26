@@ -8,7 +8,6 @@
  * - Optional password reset controls
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { UserForm } from "@/components/users/UserForm";
 
 type EditUserPageProps = {
   params: {
@@ -19,7 +18,7 @@ type EditUserPageProps = {
 export default function EditUserPage({ params }: EditUserPageProps) {
   return (
     <AppShell pageTitle={`Edit User #${params.id}`} pageDescription="Update user role and status.">
-      <UserForm mode="edit" userId={params.id} />
+      <p className="text-sm text-zinc-600">User form (edit) for #{params.id}</p>
     </AppShell>
   );
 }

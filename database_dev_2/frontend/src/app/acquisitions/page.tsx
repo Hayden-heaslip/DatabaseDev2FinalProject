@@ -8,12 +8,11 @@
  * - Link to create acquisition record
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { AcquisitionsTable } from "@/components/acquisitions/AcquisitionsTable";
 
 export default function AcquisitionsPage() {
   return (
     <AppShell pageTitle="Acquisitions" pageDescription="Track inventory purchases and source records.">
-      <AcquisitionsTable />
+      <p className="text-sm text-zinc-600">Acquisitions table goes here.</p>
     </AppShell>
   );
 }

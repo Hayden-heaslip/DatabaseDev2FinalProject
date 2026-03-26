@@ -8,12 +8,11 @@
  * - Password setup or invite flow
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { UserForm } from "@/components/users/UserForm";
 
 export default function CreateUserPage() {
   return (
     <AppShell pageTitle="Create User" pageDescription="Add a new system user account.">
-      <UserForm mode="create" />
+      <p className="text-sm text-zinc-600">User form (create)</p>
     </AppShell>
   );
 }

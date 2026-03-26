@@ -8,12 +8,11 @@
  * - Active/inactive toggle actions
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { UsersTable } from "@/components/users/UsersTable";
 
 export default function UsersPage() {
   return (
     <AppShell pageTitle="Users" pageDescription="Admin user and role management.">
-      <UsersTable />
+      <p className="text-sm text-zinc-600">Users table goes here.</p>
     </AppShell>
   );
 }

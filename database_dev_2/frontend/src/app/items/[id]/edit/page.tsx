@@ -8,7 +8,6 @@
  * - Save handler to src/api/items.ts
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { ItemForm } from "@/components/items/ItemForm";
 
 type EditItemPageProps = {
   params: {
@@ -19,7 +18,7 @@ type EditItemPageProps = {
 export default function EditItemPage({ params }: EditItemPageProps) {
   return (
     <AppShell pageTitle={`Edit Item #${params.id}`} pageDescription="Update item details.">
-      <ItemForm mode="edit" itemId={params.id} />
+      <p className="text-sm text-zinc-600">Item form (edit) for #{params.id}</p>
     </AppShell>
   );
 }

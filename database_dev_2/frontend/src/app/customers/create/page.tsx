@@ -7,12 +7,11 @@
  * - Validation and save action
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { CustomerForm } from "@/components/customers/CustomerForm";
 
 export default function CreateCustomerPage() {
   return (
     <AppShell pageTitle="Create Customer" pageDescription="Add a new customer profile.">
-      <CustomerForm mode="create" />
+      <p className="text-sm text-zinc-600">Customer form (create)</p>
     </AppShell>
   );
 }

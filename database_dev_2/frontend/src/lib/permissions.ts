@@ -1,14 +1,12 @@
 /** Central RBAC rules: who can access what. */
-import type { RoleName } from "@/types";
+export function canAccess(role: string | undefined, action: string) {
+  const map: Record<string, string[]> = {
+    admin: ["READ_USER", "READ_AUDIT_LOGS"],
+    manager: ["READ_AUDIT_LOGS"],
+    employee: [],
+  };
 
-const routePermissions: Record<string, RoleName[]> = {
-  "/users": ["ADMIN"],
-  "/users/create": ["ADMIN"],
-  "/audit-logs": ["ADMIN", "MANAGER"],
-};
+  if (!role) return false;
 
-export function canAccessRoute(role: RoleName, route: string): boolean {
-  const allowedRoles = routePermissions[route];
-  if (!allowedRoles) return true;
-  return allowedRoles.includes(role);
+  return map[role]?.includes(action) || false;
 }

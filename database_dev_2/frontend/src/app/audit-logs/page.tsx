@@ -8,12 +8,11 @@
  * - Links to affected records when relevant
  */
 import { AppShell } from "@/components/layout/AppShell";
-import { AuditLogsTable } from "@/components/audit-logs/AuditLogsTable";
 
 export default function AuditLogsPage() {
   return (
     <AppShell pageTitle="Audit Logs" pageDescription="Track critical system actions.">
-      <AuditLogsTable />
+      <p className="text-sm text-zinc-600">Audit logs table goes here.</p>
     </AppShell>
   );
 }
