@@ -21,7 +21,6 @@ export default function ItemsPage() {
   const [rows, setRows] = useState<ItemRow[]>([]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [conditionFilter, setConditionFilter] = useState("All");
   const [minPrice, setMinPrice] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -65,13 +64,13 @@ export default function ItemsPage() {
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const matchesCategory = categoryFilter === "All" || row.category === categoryFilter;
-      const matchesCondition = conditionFilter === "All" || row.condition === conditionFilter;
+      
       const minPriceNumber = minPrice.trim() === "" ? null : Number(minPrice);
       const matchesMinPrice =
         minPriceNumber === null || Number.isNaN(minPriceNumber) ? true : row.askingPrice >= minPriceNumber;
-      return matchesCategory && matchesCondition && matchesMinPrice;
+      return matchesCategory && matchesMinPrice;
     });
-  }, [rows, categoryFilter, conditionFilter, minPrice]);
+  }, [rows, categoryFilter, minPrice]);
 
   const visibleRows = useMemo(() => filteredRows.slice(0, 30), [filteredRows]);
   const role = String(user?.role || "").toLowerCase();
@@ -121,17 +120,6 @@ export default function ItemsPage() {
             <option value="Map">Map</option>
             <option value="Magazine">Magazine</option>
             <option value="Other">Other</option>
-          </select>
-          <select
-            value={conditionFilter}
-            onChange={(e) => setConditionFilter(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          >
-            <option value="All">All Conditions</option>
-            <option>Excellent</option>
-            <option>Very Good</option>
-            <option>Good</option>
-            <option>Fair</option>
           </select>
           <input
             type="number"
