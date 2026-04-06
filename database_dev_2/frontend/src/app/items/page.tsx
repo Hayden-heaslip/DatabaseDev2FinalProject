@@ -162,7 +162,6 @@ export default function ItemsPage() {
                 <th className="px-3 py-2 font-medium">Title</th>
                 <th className="px-3 py-2 font-medium">Category</th>
                 <th className="px-3 py-2 font-medium">Condition</th>
-                <th className="px-3 py-2 font-medium">Qty</th>
                 <th className="px-3 py-2 font-medium">Asking Price</th>
                 <th className="px-3 py-2 font-medium">Actions</th>
               </tr>
@@ -204,7 +203,6 @@ export default function ItemsPage() {
                     </td>
                     <td className="px-3 py-2">{row.category}</td>
                     <td className="px-3 py-2">{row.condition}</td>
-                    <td className="px-3 py-2">{row.status === "Sold" ? 0 : 1}</td>
                     <td className="px-3 py-2">${row.askingPrice.toFixed(2)}</td>
                     <td className="px-3 py-2 text-slate-500">
                       <div className="flex items-center gap-3">
