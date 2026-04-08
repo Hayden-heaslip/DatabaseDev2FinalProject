@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 import { updateItem } from "@/api/items";
+import { useAuth } from "@/context/AuthContext";
+import { canUpdatePricing } from "@/lib/permissions";
 
 type ItemResponse = {
   success: boolean;
@@ -32,7 +34,10 @@ function toDateInput(value?: string | null) {
 export default function EditItemPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const itemId = Number(params?.id);
+  const role = String(user?.role || "").toLowerCase();
+  const mayEditPricing = canUpdatePricing(role);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -104,25 +109,26 @@ export default function EditItemPage() {
     const acquisitionCostNum = Number(acquisitionCost);
     const sellingPriceNum = Number(sellingPrice);
 
-    if (!Number.isFinite(acquisitionCostNum) || acquisitionCostNum <= 0) {
+    if (mayEditPricing && (!Number.isFinite(acquisitionCostNum) || acquisitionCostNum <= 0)) {
       return setError("Acquisition cost must be a positive number.");
     }
-    if (!Number.isFinite(sellingPriceNum) || sellingPriceNum <= 0) {
+    if (mayEditPricing && (!Number.isFinite(sellingPriceNum) || sellingPriceNum <= 0)) {
       return setError("Selling price must be a positive number.");
     }
 
     try {
       setSaving(true);
-      const result = await updateItem(itemId, {
+      const payload = {
         title: title.trim(),
         description: description.trim() || null,
         condition: condition.trim(),
         acquisition_date: new Date(acquisitionDate).toISOString(),
-        acquisition_cost: acquisitionCostNum,
-        selling_price: sellingPriceNum,
         image_url: imageUrl.trim() || null,
         note: note.trim() || null,
-      });
+        ...(mayEditPricing ? { acquisition_cost: acquisitionCostNum, selling_price: sellingPriceNum } : {}),
+      };
+
+      const result = await updateItem(itemId, payload);
       if (!result.success) {
         throw new Error(result.error || "Failed to update item");
       }
@@ -155,14 +161,18 @@ export default function EditItemPage() {
                 Acquisition Date
                 <input type="date" value={acquisitionDate} onChange={(e) => setAcquisitionDate(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
               </label>
-              <label className="text-sm font-medium text-slate-700">
-                Acquisition Cost
-                <input type="number" min="0" step="0.01" value={acquisitionCost} onChange={(e) => setAcquisitionCost(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-              </label>
-              <label className="text-sm font-medium text-slate-700">
-                Selling Price
-                <input type="number" min="0" step="0.01" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-              </label>
+              {mayEditPricing && (
+                <label className="text-sm font-medium text-slate-700">
+                  Acquisition Cost
+                  <input type="number" min="0" step="0.01" value={acquisitionCost} onChange={(e) => setAcquisitionCost(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+                </label>
+              )}
+              {mayEditPricing && (
+                <label className="text-sm font-medium text-slate-700">
+                  Selling Price
+                  <input type="number" min="0" step="0.01" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+                </label>
+              )}
               <label className="text-sm font-medium text-slate-700">
                 Image URL
                 <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />

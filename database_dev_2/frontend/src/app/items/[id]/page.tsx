@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
+import { canReadPricing, canReadProvenance } from "@/lib/permissions";
 
 export default function ItemDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [item, setItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,6 +76,10 @@ export default function ItemDetailsPage() {
   // -----------------------------
   // MAIN UI
   // -----------------------------
+  const role = String(user?.role || "").toLowerCase();
+  const showPricing = canReadPricing(role);
+  const showProvenance = canReadProvenance(role);
+
   return (
     <AppShell pageTitle={item.title} pageDescription="Full inventory record and provenance context.">
       <div className="space-y-6">
@@ -94,15 +101,19 @@ export default function ItemDetailsPage() {
               </span>
             </div>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <div className="data-card p-3">
-              <p className="data-label">Acquisition Cost</p>
-              <p className="mt-1 text-lg font-semibold text-[#1f3f38]">{formatCurrency(item.acquisition_cost)}</p>
-            </div>
-            <div className="data-card p-3">
-              <p className="data-label">Current Selling Price</p>
-              <p className="mt-1 text-lg font-semibold text-[#1f3f38]">{formatCurrency(item.selling_price)}</p>
-            </div>
+          <div className={`mt-4 grid gap-3 ${showPricing ? "md:grid-cols-3" : "md:grid-cols-1"}`}>
+            {showPricing && (
+              <div className="data-card p-3">
+                <p className="data-label">Acquisition Cost</p>
+                <p className="mt-1 text-lg font-semibold text-[#1f3f38]">{formatCurrency(item.acquisition_cost)}</p>
+              </div>
+            )}
+            {showPricing && (
+              <div className="data-card p-3">
+                <p className="data-label">Current Selling Price</p>
+                <p className="mt-1 text-lg font-semibold text-[#1f3f38]">{formatCurrency(item.selling_price)}</p>
+              </div>
+            )}
             <div className="data-card p-3">
               <p className="data-label">Date Acquired</p>
               <p className="mt-1 text-lg font-semibold text-[#1f3f38]">{formatDate(item.acquisition_date)}</p>
@@ -251,7 +262,7 @@ export default function ItemDetailsPage() {
               </section>
             )}
 
-            {Array.isArray(item.provenance) && item.provenance.length > 0 && (
+            {showProvenance && Array.isArray(item.provenance) && item.provenance.length > 0 && (
               <section className="data-card p-4">
                 <h3 className="brand-serif text-lg font-semibold text-[#183f36]">Provenance</h3>
                 <div className="mt-3 space-y-3 text-sm">
@@ -267,7 +278,7 @@ export default function ItemDetailsPage() {
               </section>
             )}
 
-            {Array.isArray(item.price_history) && item.price_history.length > 0 && (
+            {showPricing && Array.isArray(item.price_history) && item.price_history.length > 0 && (
               <section className="data-card p-4">
                 <h3 className="brand-serif text-lg font-semibold text-[#183f36]">Price History</h3>
                 <div className="mt-3 space-y-3 text-sm">

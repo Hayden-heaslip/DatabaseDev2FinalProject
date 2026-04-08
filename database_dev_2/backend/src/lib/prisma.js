@@ -10,14 +10,19 @@ export function createPrismaClient() {
     return prismaSingleton;
   }
 
-  const rawConnectionString = String(process.env.DIRECT_URL || process.env.DATABASE_URL || "").trim();
+  // Prefer pooled URL first because it is generally more stable across varied local networks.
+  const rawConnectionString = String(process.env.DATABASE_URL || process.env.DIRECT_URL || "").trim();
   const connectionString = rawConnectionString.replace(/^["']|["']$/g, "");
 
   if (!connectionString) {
     throw new Error("DATABASE_URL or DIRECT_URL is missing from .env");
   }
 
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({
+    connectionString,
+    connectionTimeoutMillis: 8000,
+    query_timeout: 10000,
+  });
   const adapter = new PrismaPg(pool);
   prismaSingleton = new PrismaClient({ adapter });
   return prismaSingleton;

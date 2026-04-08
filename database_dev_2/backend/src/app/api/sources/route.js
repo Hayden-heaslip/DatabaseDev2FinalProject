@@ -5,7 +5,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
-import { hasPermission } from "@/lib/permissions";
+import { canReadDealerContact, hasPermission } from "@/lib/permissions";
 
 function normalizeSourceType(input) {
   const raw = String(input || "").trim().toLowerCase();
@@ -50,11 +50,12 @@ export async function GET(request) {
       orderBy: { source_id: "desc" },
       take: 100,
     });
+    const includeDealerContact = canReadDealerContact(sessionUser.role);
     const sources = rows.map((row) => ({
       sourceId: row.source_id,
       name: row.name,
-      email: row.email,
-      phone: row.phone,
+      email: includeDealerContact ? row.email : null,
+      phone: includeDealerContact ? row.phone : null,
       type: row.dealer ? "Dealer" : row.collector ? "Collector" : row.estate ? "Estate" : "Source",
       acquisitionCount: row.acquisitions.length,
     }));

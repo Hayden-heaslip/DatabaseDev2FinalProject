@@ -7,6 +7,17 @@ This file defines the expected authentication and authorization policy for backe
 - Route handlers must enforce method-level RBAC with hasPermission unless endpoint is explicitly AUTH_ONLY.
 - OPTIONS handlers are CORS/preflight only.
 
+## Business Role Mapping
+- `admin` = Connor (owner)
+- `manager` = Lucia
+- `employee` = Derek
+
+## Sensitive Data Rules
+- Pricing visibility requires `READ_PRICING`.
+- Provenance visibility requires `READ_PROVENANCE`.
+- Dealer contact visibility requires `READ_DEALER_CONTACT`.
+- Price history mutations require `UPDATE_PRICING`.
+
 ## Endpoint Matrix
 
 ### Public
@@ -35,11 +46,11 @@ This file defines the expected authentication and authorization policy for backe
 - GET /api/sales -> READ_SALE
 - POST /api/sales -> CREATE_SALE
 
-- GET /api/price-history -> READ_ITEM
-- POST /api/price-history -> UPDATE_ITEM
-- GET /api/price-history/[id] -> READ_ITEM
-- PUT /api/price-history/[id] -> UPDATE_ITEM
-- DELETE /api/price-history/[id] -> UPDATE_ITEM
+- GET /api/price-history -> READ_PRICING
+- POST /api/price-history -> UPDATE_PRICING
+- GET /api/price-history/[id] -> READ_PRICING
+- PUT /api/price-history/[id] -> UPDATE_PRICING
+- DELETE /api/price-history/[id] -> UPDATE_PRICING
 
 - GET /api/authors -> READ_ITEM
 - POST /api/authors -> CREATE_ITEM

@@ -5,7 +5,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
-import { hasPermission } from "@/lib/permissions";
+import { canReadPricing, hasPermission } from "@/lib/permissions";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -52,6 +52,7 @@ export async function GET(request) {
       orderBy: { acquisition_id: "desc" },
       take: 100,
     });
+    const includePricing = canReadPricing(sessionUser.role);
     const acquisitions = rows.map((row) => ({
       acquisitionId: row.acquisition_id,
       itemId: row.item_id,
@@ -59,7 +60,7 @@ export async function GET(request) {
       sourceId: row.source_id,
       sourceName: row.source?.name || "Unknown Source",
       sourceType: row.source?.dealer ? "Dealer" : row.source?.collector ? "Collector" : row.source?.estate ? "Estate" : "Source",
-      acquisitionCost: Number(row.item?.acquisition_cost ?? 0),
+      acquisitionCost: includePricing ? Number(row.item?.acquisition_cost ?? 0) : null,
       acquisitionDate: row.item?.acquisition_date ?? null,
     }));
     return withCors(request, Response.json({ success: true, acquisitions }, { status: 200 }), [
@@ -148,6 +149,7 @@ export async function POST(request) {
       },
     });
 
+    const includePricing = canReadPricing(sessionUser.role);
     const acquisition = {
       acquisitionId: created.acquisition_id,
       sourceId: created.source_id,
@@ -161,7 +163,7 @@ export async function POST(request) {
             : "Source",
       itemId: created.item_id,
       itemTitle: created.item?.title || "Unknown Item",
-      acquisitionCost: Number(created.item?.acquisition_cost ?? 0),
+      acquisitionCost: includePricing ? Number(created.item?.acquisition_cost ?? 0) : null,
       acquisitionDate: created.item?.acquisition_date || null,
     };
 

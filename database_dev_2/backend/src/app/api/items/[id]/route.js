@@ -1,11 +1,21 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
-import { hasPermission } from "@/lib/permissions";
+import { canReadPricing, canReadProvenance, canUpdatePricing, hasPermission } from "@/lib/permissions";
 
 function parseId(params) {
   const id = Number(params?.id);
   return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+function buildItemUpdateData(payload, allowPricing) {
+  const baseFields = ["title", "description", "condition", "acquisition_date", "image_url", "note"];
+  const pricingFields = ["acquisition_cost", "selling_price"];
+  const allowedFields = allowPricing ? [...baseFields, ...pricingFields] : baseFields;
+
+  return Object.fromEntries(
+    Object.entries(payload || {}).filter(([key, value]) => allowedFields.includes(key) && value !== undefined)
+  );
 }
 
 export async function OPTIONS(req) {
@@ -65,9 +75,22 @@ export async function GET(request, { params }) {
     if (!item) {
       return withCors(request, Response.json({ success: false, error: "Item not found" }, { status: 404 }));
     }
+    const includePricing = canReadPricing(sessionUser.role);
+    const includeProvenance = canReadProvenance(sessionUser.role);
     const category = item.book ? "Book" : item.map ? "Map" : item.periodical ? "Magazine" : "Other";
     const status = item.sales.length > 0 ? "Sold" : "In Stock";
-    return withCors(request, Response.json({ success: true, item: { ...item, category, status } }, { status: 200 }));
+
+    const formattedItem = {
+      ...item,
+      category,
+      status,
+      acquisition_cost: includePricing ? item.acquisition_cost : null,
+      selling_price: includePricing ? item.selling_price : null,
+      price_history: includePricing ? item.price_history : [],
+      provenance: includeProvenance ? item.provenance : [],
+    };
+
+    return withCors(request, Response.json({ success: true, item: formattedItem }, { status: 200 }));
   } catch (error) {
     return withCors(
       request,
@@ -93,7 +116,22 @@ export async function PUT(request, { params }) {
     }
 
     const payload = await request.json();
-    const { priceHistorySource, priceRecordedDate, ...updateData } = payload ?? {};
+    const { priceHistorySource, priceRecordedDate } = payload ?? {};
+    const mayUpdatePricing = canUpdatePricing(sessionUser.role);
+    if (!mayUpdatePricing && (payload?.acquisition_cost !== undefined || payload?.selling_price !== undefined)) {
+      return withCors(
+        request,
+        Response.json({ success: false, error: "Forbidden: pricing updates are restricted" }, { status: 403 })
+      );
+    }
+
+    const updateData = buildItemUpdateData(payload, mayUpdatePricing);
+    if (Object.keys(updateData).length === 0) {
+      return withCors(
+        request,
+        Response.json({ success: false, error: "No editable fields were provided" }, { status: 400 })
+      );
+    }
 
     const updated = await prisma.$transaction(async (tx) => {
       const existing = await tx.item.findUnique({
@@ -111,7 +149,7 @@ export async function PUT(request, { params }) {
 
       const currentPrice = Number(existing.selling_price);
       const nextPrice = Number(updatedItem.selling_price);
-      if (Number.isFinite(nextPrice) && nextPrice > 0 && nextPrice !== currentPrice) {
+      if (mayUpdatePricing && Number.isFinite(nextPrice) && nextPrice > 0 && nextPrice !== currentPrice) {
         const historySource =
           typeof priceHistorySource === "string" && priceHistorySource.trim()
             ? priceHistorySource.trim()

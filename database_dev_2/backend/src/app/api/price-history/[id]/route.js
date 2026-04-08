@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
     if (!sessionUser?.userId) {
       return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
     }
-    if (!hasPermission(sessionUser.role, "READ_ITEM")) {
+    if (!hasPermission(sessionUser.role, "READ_PRICING")) {
       return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
     }
 
@@ -77,7 +77,7 @@ export async function PUT(request, { params }) {
     if (!sessionUser?.userId) {
       return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
     }
-    if (!hasPermission(sessionUser.role, "UPDATE_ITEM")) {
+    if (!hasPermission(sessionUser.role, "UPDATE_PRICING")) {
       return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
     }
 
@@ -156,7 +156,7 @@ export async function DELETE(request, { params }) {
     if (!sessionUser?.userId) {
       return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
     }
-    if (!hasPermission(sessionUser.role, "UPDATE_ITEM")) {
+    if (!hasPermission(sessionUser.role, "UPDATE_PRICING")) {
       return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
     }
 

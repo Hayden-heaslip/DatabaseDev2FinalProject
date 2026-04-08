@@ -1,7 +1,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
-import { hasPermission } from "@/lib/permissions";
+import { canReadPricing, hasPermission } from "@/lib/permissions";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -43,12 +43,13 @@ export async function GET(request) {
       take: 50,
     });
 
+    const includePricing = canReadPricing(sessionUser.role);
     const formatted = items.map((item) => ({
       itemId: item.item_id,
       title: item.title,
       category: item.book ? "Book" : item.map ? "Map" : item.periodical ? "Magazine" : "Other",
       condition: item.condition,
-      askingPrice: Number(item.selling_price),
+      askingPrice: includePricing ? Number(item.selling_price) : null,
       status: item.sales.length > 0 ? "Sold" : "In Stock",
     }));
 
