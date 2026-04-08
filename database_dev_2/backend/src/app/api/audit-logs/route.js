@@ -38,7 +38,7 @@ export async function GET(request) {
       ]);
     }
 
-    const [sales, acquisitions] = await Promise.all([
+    const [sales, acquisitions, users] = await Promise.all([
       prisma.sales.findMany({
         include: {
           user: { select: { first_name: true, last_name: true, email: true } },
@@ -54,6 +54,13 @@ export async function GET(request) {
           item: { select: { title: true, acquisition_date: true } },
         },
         orderBy: { acquisition_id: "desc" },
+        take: 50,
+      }),
+      prisma.user.findMany({
+        include: {
+          role: { select: { role_name: true } },
+        },
+        orderBy: { user_id: "desc" },
         take: 50,
       }),
     ]);
@@ -78,7 +85,17 @@ export async function GET(request) {
       timestamp: acq.item?.acquisition_date || null,
     }));
 
-    const auditLogs = [...saleLogs, ...acquisitionLogs]
+    const userLogs = users.map((user) => ({
+      id: `user-${user.user_id}`,
+      action: user.is_active ? "USER_ACTIVE" : "USER_DEACTIVATED",
+      actor: "Admin",
+      resourceType: "user",
+      resourceId: user.user_id,
+      summary: `User ${user.first_name} ${user.last_name} (${user.email}) - role: ${user.role?.role_name || "unknown"}`,
+      timestamp: user.created_date || null,
+    }));
+
+    const auditLogs = [...saleLogs, ...acquisitionLogs, ...userLogs]
       .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
       .slice(0, 100);
 

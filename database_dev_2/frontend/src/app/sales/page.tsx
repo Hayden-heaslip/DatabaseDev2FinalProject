@@ -60,7 +60,8 @@ export default function SalesPage() {
   return (
     <AppShell pageTitle="Sales" pageDescription="Track sold items and sale details.">
       <section className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="rounded-2xl border border-[#ded8c8] bg-[#faf8f1] p-3 md:p-4">
+          <div className="grid gap-3 md:grid-cols-4">
           <input
             placeholder="Search sale / customer / item"
             value={search}
@@ -76,39 +77,84 @@ export default function SalesPage() {
           >
             + Record Sale
           </button>
+          </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="space-y-3 md:hidden">
+          {!loading &&
+            !error &&
+            rows
+              .filter((row) => {
+                const q = search.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  String(row.salesId).includes(q) ||
+                  row.customer.toLowerCase().includes(q) ||
+                  row.item.toLowerCase().includes(q) ||
+                  row.soldBy.toLowerCase().includes(q)
+                );
+              })
+              .map((row) => (
+                <div key={row.salesId} className="data-card p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="data-label">Sale</p>
+                    <p className="font-mono text-xs text-slate-600">#{row.salesId}</p>
+                  </div>
+                  <p className="data-value font-medium">{row.item}</p>
+                  <p className="mt-1 text-sm text-[#556963]">{row.customer}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="data-label">Price</p>
+                      <p className="data-value">${row.salePrice.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="data-label">Payment</p>
+                      <p className="data-value">{row.paymentMethod || "-"}</p>
+                    </div>
+                    <div>
+                      <p className="data-label">Sold By</p>
+                      <p className="data-value">{row.soldBy}</p>
+                    </div>
+                    <div>
+                      <p className="data-label">Date</p>
+                      <p className="data-value">{new Date(row.date).toLocaleDateString("en-CA")}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+        </div>
+
+        <div className="table-shell hidden overflow-x-auto md:block">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-600">
+            <thead className="text-left text-slate-600">
               <tr>
-                <th className="px-3 py-2 font-medium">Sales ID</th>
-                <th className="px-3 py-2 font-medium">Date/Time</th>
-                <th className="px-3 py-2 font-medium">Customer</th>
-                <th className="px-3 py-2 font-medium">Item</th>
-                <th className="px-3 py-2 font-medium">Sale Price</th>
-                <th className="px-3 py-2 font-medium">Payment Method</th>
-                <th className="px-3 py-2 font-medium">Sold By</th>
+                <th className="px-4 py-3 font-medium">Sales ID</th>
+                <th className="px-4 py-3 font-medium">Date/Time</th>
+                <th className="px-4 py-3 font-medium">Customer</th>
+                <th className="px-4 py-3 font-medium">Item</th>
+                <th className="px-4 py-3 font-medium">Sale Price</th>
+                <th className="px-4 py-3 font-medium">Payment Method</th>
+                <th className="px-4 py-3 font-medium">Sold By</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
                     Loading sales...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-red-600">
+                  <td colSpan={7} className="px-4 py-10 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && rows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
                     No sales found.
                   </td>
                 </tr>
@@ -128,13 +174,13 @@ export default function SalesPage() {
                   })
                   .map((row) => (
                   <tr key={row.salesId} className="border-t border-slate-100">
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.salesId}</td>
-                    <td className="px-3 py-2">{new Date(row.date).toLocaleString("en-CA")}</td>
-                    <td className="px-3 py-2">{row.customer}</td>
-                    <td className="px-3 py-2">{row.item}</td>
-                    <td className="px-3 py-2">${row.salePrice.toFixed(2)}</td>
-                    <td className="px-3 py-2">{row.paymentMethod || "-"}</td>
-                    <td className="px-3 py-2">{row.soldBy}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{row.salesId}</td>
+                    <td className="px-4 py-3">{new Date(row.date).toLocaleString("en-CA")}</td>
+                    <td className="px-4 py-3">{row.customer}</td>
+                    <td className="px-4 py-3">{row.item}</td>
+                    <td className="px-4 py-3">${row.salePrice.toFixed(2)}</td>
+                    <td className="px-4 py-3">{row.paymentMethod || "-"}</td>
+                    <td className="px-4 py-3">{row.soldBy}</td>
                   </tr>
                 ))}
             </tbody>

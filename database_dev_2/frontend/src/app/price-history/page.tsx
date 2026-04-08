@@ -5,6 +5,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 
@@ -23,6 +24,7 @@ type ItemOption = {
 };
 
 export default function PriceHistoryPage() {
+  const router = useRouter();
   const [rows, setRows] = useState<PriceHistoryRow[]>([]);
   const [items, setItems] = useState<ItemOption[]>([]);
   const [search, setSearch] = useState("");
@@ -42,7 +44,6 @@ export default function PriceHistoryPage() {
         const query = search ? `?search=${encodeURIComponent(search)}` : "";
         const res = await fetch(`${API_BASE_URL}/api/price-history${query}`, { credentials: "include" });
         const data = await res.json();
-        await console.log("Fetched price history data:", data);
         if (!res.ok) throw new Error(data.error || "Failed to load price history");
         if (active) setRows(data.items ?? []);
       } catch (err) {
@@ -233,7 +234,15 @@ export default function PriceHistoryPage() {
                     <td className="px-3 py-2">${row.marketValue.toFixed(2)}</td>
                     <td className="px-3 py-2">{row.recordedDate}</td>
                     <td className="px-3 py-2">{row.source}</td>
-                    <td className="px-3 py-2 text-slate-500">View Details</td>
+                    <td className="px-3 py-2 text-slate-500">
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/price-history/${row.priceHistoryId}`)}
+                        className="text-blue-700 hover:underline"
+                      >
+                        View Details
+                      </button>
+                    </td>
                   </tr>
                 ))}
             </tbody>

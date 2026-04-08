@@ -3,8 +3,8 @@
 html,
 body {
   font-family: Inter, Arial, Helvetica, sans-serif;
-  background: radial-gradient(circle at top, #fbfaf5 0%, #f5f1e6 45%, #f1efe7 100%);
-  color: #0f172a;
+  background: radial-gradient(circle at top, #fbfaf5 0%, #f3efe3 46%, #efebde 100%);
+  color: #132b25;
 }
 
 .brand-serif {
@@ -14,10 +14,10 @@ body {
 
 .input {
   width: 100%;
-  border: 1px solid #b9c4c0;
+  border: 1px solid #cfd7d3;
   border-radius: 0.75rem;
-  background: #fffefb;
-  padding: 0.6rem 0.8rem;
+  background: #ffffff;
+  padding: 0.65rem 0.85rem;
   color: #1d3a34;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
@@ -27,25 +27,28 @@ body {
 }
 
 .input:hover {
-  border-color: #7f9a92;
+  border-color: #9eb1aa;
 }
 
 .input:focus {
   outline: none;
-  border-color: #1f4f45;
-  box-shadow: 0 0 0 3px rgba(31, 79, 69, 0.14);
+  border-color: #1b4f44;
+  box-shadow: 0 0 0 3px rgba(27, 79, 68, 0.12);
 }
 
 .btn-primary {
   border-radius: 0.75rem;
-  background: #103b33;
-  color: #f5e8c8;
+  border: 1px solid #9f7b33;
+  background: linear-gradient(180deg, #b89245 0%, #9f7b33 100%);
+  color: #fffaf0;
   font-weight: 600;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: #15473d;
+  background: linear-gradient(180deg, #c19a4a 0%, #a88639 100%);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
 }
 
 .btn-primary:active {
@@ -54,22 +57,43 @@ body {
 
 .btn-secondary {
   border-radius: 0.75rem;
-  border: 1px solid #c8b27a;
-  background: #f9f3e3;
+  border: 1px solid #d9d7cc;
+  background: #fbfaf5;
   color: #2f473f;
   font-weight: 500;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn-secondary:hover {
-  background: #f4ead2;
+  background: #f5f1e6;
+  border-color: #c9c4b3;
 }
 
 .table-shell {
   overflow: hidden;
-  border-radius: 0.85rem;
-  border: 1px solid #d8d6cb;
-  background: #fffefb;
+  border-radius: 1rem;
+  border: 1px solid #ddd8ca;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.data-card {
+  border: 1px solid #ddd8ca;
+  border-radius: 0.9rem;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.data-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #6a7e78;
+}
+
+.data-value {
+  font-size: 0.92rem;
+  color: #203a33;
 }
 
 /* Subtle texture overlays for heritage-style UI surfaces. */
@@ -94,14 +118,22 @@ body {
 
 /* Warm, old-paper feeling for common table sections */
 table thead {
-  background-color: #f2eddf;
+  background-color: #f4f0e3;
 }
 
 table th {
-  color: #2d4a43;
+  color: #2a473f;
   font-weight: 600;
 }
 
 table td {
-  color: #253f39;
+  color: #29413b;
+}
+
+table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+table tbody tr:hover {
+  background-color: #faf7ef;
 }

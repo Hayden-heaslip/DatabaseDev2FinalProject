@@ -57,7 +57,8 @@ export default function AcquisitionsPage() {
   return (
     <AppShell pageTitle="Acquisitions" pageDescription="Track inventory purchases and source records.">
       <section className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="rounded-2xl border border-[#ded8c8] bg-[#faf8f1] p-3 md:p-4">
+          <div className="grid gap-3 md:grid-cols-4">
           <input
             placeholder="Search source or item"
             value={search}
@@ -72,37 +73,68 @@ export default function AcquisitionsPage() {
           >
             + Record Acquisition
           </button>
+          </div>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="space-y-3 md:hidden">
+          {!loading &&
+            !error &&
+            visibleRows.map((row) => (
+              <div key={row.acquisitionId} className="data-card p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="data-label">Acquisition</p>
+                  <p className="font-mono text-xs text-slate-600">#{row.acquisitionId}</p>
+                </div>
+                <p className="data-value font-medium">{row.itemTitle}</p>
+                <p className="mt-1 text-sm text-[#556963]">{row.sourceName}</p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="data-label">Source Type</p>
+                    <p className="data-value">{row.sourceType}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Cost</p>
+                    <p className="data-value">${Number(row.acquisitionCost).toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Date</p>
+                    <p className="data-value">
+                      {row.acquisitionDate ? new Date(row.acquisitionDate).toLocaleDateString() : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+        <div className="table-shell hidden overflow-x-auto md:block">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-600">
+            <thead className="text-left text-slate-600">
               <tr>
-                <th className="px-3 py-2 font-medium">Acquisition ID</th>
-                <th className="px-3 py-2 font-medium">Item</th>
-                <th className="px-3 py-2 font-medium">Source</th>
-                <th className="px-3 py-2 font-medium">Type</th>
-                <th className="px-3 py-2 font-medium">Cost</th>
-                <th className="px-3 py-2 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium">Acquisition ID</th>
+                <th className="px-4 py-3 font-medium">Item</th>
+                <th className="px-4 py-3 font-medium">Source</th>
+                <th className="px-4 py-3 font-medium">Type</th>
+                <th className="px-4 py-3 font-medium">Cost</th>
+                <th className="px-4 py-3 font-medium">Date</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                     Loading acquisitions...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-red-600">
+                  <td colSpan={6} className="px-4 py-8 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && visibleRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                     No acquisitions found.
                   </td>
                 </tr>
@@ -111,12 +143,12 @@ export default function AcquisitionsPage() {
                 !error &&
                 visibleRows.map((row) => (
                   <tr key={row.acquisitionId} className="border-t border-slate-100">
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.acquisitionId}</td>
-                    <td className="px-3 py-2">{row.itemTitle}</td>
-                    <td className="px-3 py-2">{row.sourceName}</td>
-                    <td className="px-3 py-2">{row.sourceType}</td>
-                    <td className="px-3 py-2">${Number(row.acquisitionCost).toFixed(2)}</td>
-                    <td className="px-3 py-2">{row.acquisitionDate ? new Date(row.acquisitionDate).toLocaleDateString() : "-"}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{row.acquisitionId}</td>
+                    <td className="px-4 py-3">{row.itemTitle}</td>
+                    <td className="px-4 py-3">{row.sourceName}</td>
+                    <td className="px-4 py-3">{row.sourceType}</td>
+                    <td className="px-4 py-3">${Number(row.acquisitionCost).toFixed(2)}</td>
+                    <td className="px-4 py-3">{row.acquisitionDate ? new Date(row.acquisitionDate).toLocaleDateString() : "-"}</td>
                   </tr>
                 ))}
             </tbody>

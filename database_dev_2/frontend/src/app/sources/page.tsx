@@ -73,7 +73,8 @@ export default function SourcesPage() {
   return (
     <AppShell pageTitle="Sources" pageDescription="Manage dealers, collectors, and other sources.">
       <section className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="rounded-2xl border border-[#ded8c8] bg-[#faf8f1] p-3 md:p-4">
+          <div className="grid gap-3 md:grid-cols-4">
           <input
             placeholder="Search source name/email"
             value={search}
@@ -88,38 +89,82 @@ export default function SourcesPage() {
           >
             + New Source
           </button>
+          </div>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="space-y-3 md:hidden">
+          {!loading &&
+            !error &&
+            visibleRows.map((row) => (
+              <div key={row.sourceId} className="data-card p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="data-label">Source</p>
+                  <p className="font-mono text-xs text-slate-600">#{row.sourceId}</p>
+                </div>
+                <p className="data-value font-medium">{row.name}</p>
+                <p className="mt-1 text-sm text-[#556963] capitalize">{row.type}</p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="data-label">Email</p>
+                    <p className="data-value">{row.email || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Phone</p>
+                    <p className="data-value">{row.phone || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Acquisitions</p>
+                    <p className="data-value">{row.acquisitionCount}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-3 text-sm">
+                  <button type="button" onClick={() => router.push(`/sources/${row.sourceId}`)} className="text-[#184a40] hover:underline">
+                    View
+                  </button>
+                  {canUpdate ? (
+                    <button type="button" onClick={() => router.push(`/sources/${row.sourceId}/edit`)} className="text-slate-700 hover:underline">
+                      Edit
+                    </button>
+                  ) : null}
+                  {canDelete ? (
+                    <button type="button" onClick={() => handleDelete(row.sourceId)} className="text-red-600 hover:underline">
+                      Delete
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+        </div>
+        <div className="table-shell hidden overflow-x-auto md:block">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-600">
+            <thead className="text-left text-slate-600">
               <tr>
-                <th className="px-3 py-2 font-medium">Source ID</th>
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Type</th>
-                <th className="px-3 py-2 font-medium">Email</th>
-                <th className="px-3 py-2 font-medium">Phone</th>
-                <th className="px-3 py-2 font-medium">Acquisitions</th>
-                <th className="px-3 py-2 font-medium">Actions</th>
+                <th className="px-4 py-3 font-medium">Source ID</th>
+                <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Type</th>
+                <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">Phone</th>
+                <th className="px-4 py-3 font-medium">Acquisitions</th>
+                <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                     Loading sources...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-red-600">
+                  <td colSpan={7} className="px-4 py-8 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && visibleRows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                     No sources found.
                   </td>
                 </tr>
@@ -128,18 +173,18 @@ export default function SourcesPage() {
                 !error &&
                 visibleRows.map((row) => (
                   <tr key={row.sourceId} className="border-t border-slate-100">
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.sourceId}</td>
-                    <td className="px-3 py-2">{row.name}</td>
-                    <td className="px-3 py-2">{row.type}</td>
-                    <td className="px-3 py-2">{row.email || "-"}</td>
-                    <td className="px-3 py-2">{row.phone || "-"}</td>
-                    <td className="px-3 py-2">{row.acquisitionCount}</td>
-                    <td className="px-3 py-2">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{row.sourceId}</td>
+                    <td className="px-4 py-3">{row.name}</td>
+                    <td className="px-4 py-3">{row.type}</td>
+                    <td className="px-4 py-3">{row.email || "-"}</td>
+                    <td className="px-4 py-3">{row.phone || "-"}</td>
+                    <td className="px-4 py-3">{row.acquisitionCount}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => router.push(`/sources/${row.sourceId}`)}
-                          className="text-blue-700 hover:underline"
+                          className="text-[#184a40] hover:underline"
                         >
                           View
                         </button>

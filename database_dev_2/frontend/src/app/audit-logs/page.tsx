@@ -45,35 +45,60 @@ export default function AuditLogsPage() {
 
   return (
     <AppShell pageTitle="Audit Logs" pageDescription="Track critical system actions.">
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="space-y-3 md:hidden">
+        {!loading &&
+          !error &&
+          visibleRows.map((row) => (
+            <div key={row.id} className="data-card p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="data-label">Event</p>
+                <p className="text-xs text-slate-500">{row.timestamp ? new Date(row.timestamp).toLocaleString() : "-"}</p>
+              </div>
+              <p className="data-value font-medium">{row.action}</p>
+              <p className="mt-1 text-sm text-[#556963]">{row.summary}</p>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <p className="data-label">Actor</p>
+                  <p className="data-value">{row.actor}</p>
+                </div>
+                <div>
+                  <p className="data-label">Resource</p>
+                  <p className="data-value">{row.resourceType} #{row.resourceId}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+      </div>
+
+      <div className="table-shell hidden overflow-x-auto md:block">
         <table className="min-w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-600">
+          <thead className="text-left text-slate-600">
             <tr>
-              <th className="px-3 py-2 font-medium">Timestamp</th>
-              <th className="px-3 py-2 font-medium">Action</th>
-              <th className="px-3 py-2 font-medium">Actor</th>
-              <th className="px-3 py-2 font-medium">Resource</th>
-              <th className="px-3 py-2 font-medium">Details</th>
+              <th className="px-4 py-3 font-medium">Timestamp</th>
+              <th className="px-4 py-3 font-medium">Action</th>
+              <th className="px-4 py-3 font-medium">Actor</th>
+              <th className="px-4 py-3 font-medium">Resource</th>
+              <th className="px-4 py-3 font-medium">Details</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
                   Loading audit logs...
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-red-600">
+                <td colSpan={5} className="px-4 py-8 text-center text-red-600">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && visibleRows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
                   No audit logs found.
                 </td>
               </tr>
@@ -82,11 +107,11 @@ export default function AuditLogsPage() {
               !error &&
               visibleRows.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
-                  <td className="px-3 py-2">{row.timestamp ? new Date(row.timestamp).toLocaleString() : "-"}</td>
-                  <td className="px-3 py-2 font-medium">{row.action}</td>
-                  <td className="px-3 py-2">{row.actor}</td>
-                  <td className="px-3 py-2">{row.resourceType} #{row.resourceId}</td>
-                  <td className="px-3 py-2">{row.summary}</td>
+                  <td className="px-4 py-3">{row.timestamp ? new Date(row.timestamp).toLocaleString() : "-"}</td>
+                  <td className="px-4 py-3 font-medium">{row.action}</td>
+                  <td className="px-4 py-3">{row.actor}</td>
+                  <td className="px-4 py-3">{row.resourceType} #{row.resourceId}</td>
+                  <td className="px-4 py-3">{row.summary}</td>
                 </tr>
               ))}
           </tbody>

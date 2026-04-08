@@ -104,7 +104,7 @@ export default function ItemsPage() {
   return (
     <AppShell pageTitle="Items" pageDescription="Browse and manage inventory items.">
       <section className="space-y-4">
-        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 md:p-4">
+        <div className="rounded-2xl border border-[#ded8c8] bg-[#faf8f1] p-3 md:p-4">
           <div className="grid gap-3 md:grid-cols-5">
           <input
             placeholder="Search title / ID"
@@ -140,41 +140,100 @@ export default function ItemsPage() {
           </button>
         </div>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[#536862]">
           Signed in as <span className="font-semibold">{role || "unknown"}</span>.{" "}
           {canDelete ? "You can view, edit, and delete items." : canUpdate ? "You can view and edit items." : "You can only view items."}
         </p>
 
-        <div className="table-shell overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {!loading &&
+            !error &&
+            visibleRows.map((row) => (
+              <div key={row.itemId} className="data-card p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="data-label">Item</p>
+                  <p className="font-mono text-xs text-slate-600">#{row.itemId}</p>
+                </div>
+                <button
+                  onClick={() => router.push(`/items/${row.itemId}`)}
+                  className="text-left text-base font-medium text-[#184a40] hover:underline"
+                >
+                  {row.title}
+                </button>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="data-label">Category</p>
+                    <p className="data-value">{row.category}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Condition</p>
+                    <p className="data-value">{row.condition}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Asking Price</p>
+                    <p className="data-value">${row.askingPrice.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="data-label">Status</p>
+                    <p className="data-value">{row.status}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-3 text-sm">
+                  <button onClick={() => router.push(`/items/${row.itemId}`)} className="text-[#184a40] hover:underline">
+                    View
+                  </button>
+                  {canUpdate && (
+                    <button
+                      onClick={() => router.push(`/items/${row.itemId}/edit`)}
+                      className="text-slate-700 hover:text-slate-900 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(row.itemId)}
+                      disabled={deletingId === row.itemId}
+                      className="text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      {deletingId === row.itemId ? "Deleting..." : "Delete"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+        </div>
+
+        <div className="table-shell hidden overflow-x-auto md:block">
           <table className="min-w-full text-sm">
-            <thead className="bg-stone-50 text-left text-slate-600">
+            <thead className="text-left text-slate-600">
               <tr>
-                <th className="px-3 py-2 font-medium">Item ID</th>
-                <th className="px-3 py-2 font-medium">Title</th>
-                <th className="px-3 py-2 font-medium">Category</th>
-                <th className="px-3 py-2 font-medium">Condition</th>
-                <th className="px-3 py-2 font-medium">Asking Price</th>
-                <th className="px-3 py-2 font-medium">Actions</th>
+                <th className="px-4 py-3 font-medium">Item ID</th>
+                <th className="px-4 py-3 font-medium">Title</th>
+                <th className="px-4 py-3 font-medium">Category</th>
+                <th className="px-4 py-3 font-medium">Condition</th>
+                <th className="px-4 py-3 font-medium">Asking Price</th>
+                <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
                     Loading items...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-red-600">
+                  <td colSpan={7} className="px-4 py-10 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && visibleRows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
                     No items found.
                   </td>
                 </tr>
@@ -182,26 +241,26 @@ export default function ItemsPage() {
               {!loading &&
                 !error &&
                 visibleRows.map((row) => (
-                  <tr key={row.itemId} className="border-t border-slate-100 hover:bg-stone-50/70">
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.itemId}</td>
-                    <td className="px-3 py-2">
+                  <tr key={row.itemId} className="border-t border-slate-100">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{row.itemId}</td>
+                    <td className="px-4 py-3">
                       <button
                         onClick={() => router.push(`/items/${row.itemId}`)}
-                        className="text-left font-medium text-blue-700 hover:underline"
+                        className="text-left font-medium text-[#184a40] hover:text-[#0f322c] hover:underline"
                       >
                         {row.title}
                       </button>
                     </td>
-                    <td className="px-3 py-2">{row.category}</td>
-                    <td className="px-3 py-2">{row.condition}</td>
-                    <td className="px-3 py-2">${row.askingPrice.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-slate-500">
+                    <td className="px-4 py-3">{row.category}</td>
+                    <td className="px-4 py-3">{row.condition}</td>
+                    <td className="px-4 py-3">${row.askingPrice.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-slate-500">
                       <div className="flex items-center gap-3">
-                        <button onClick={() => router.push(`/items/${row.itemId}`)} className="text-blue-700 hover:underline">
+                        <button onClick={() => router.push(`/items/${row.itemId}`)} className="text-[#184a40] hover:underline">
                           View
                         </button>
                         {canUpdate && (
-                          <button onClick={() => router.push(`/items/${row.itemId}/edit`)} className="text-slate-700 hover:underline">
+                          <button onClick={() => router.push(`/items/${row.itemId}/edit`)} className="text-slate-700 hover:text-slate-900 hover:underline">
                             Edit
                           </button>
                         )}
