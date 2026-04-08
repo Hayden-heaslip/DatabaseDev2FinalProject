@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
 
 type SourceRow = {
   sourceId: number;
@@ -14,6 +16,8 @@ type SourceRow = {
 };
 
 export default function SourcesPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [rows, setRows] = useState<SourceRow[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -44,15 +48,46 @@ export default function SourcesPage() {
 
   const visibleRows = useMemo(() => rows.slice(0, 50), [rows]);
 
+  const role = String(user?.role || "").toLowerCase();
+  const canCreate = role === "admin" || role === "manager";
+  const canUpdate = role === "admin" || role === "manager";
+  const canDelete = role === "admin";
+
+  async function handleDelete(sourceId: number) {
+    const confirmed = window.confirm("Delete this source?");
+    if (!confirmed) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/sources/${sourceId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete source");
+      setRows((prev) => prev.filter((row) => row.sourceId !== sourceId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete source");
+    }
+  }
+
   return (
     <AppShell pageTitle="Sources" pageDescription="Manage dealers, collectors, and other sources.">
       <section className="space-y-4">
-        <input
-          placeholder="Search source name/email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm md:w-80"
-        />
+        <div className="grid gap-3 md:grid-cols-4">
+          <input
+            placeholder="Search source name/email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input md:col-span-2"
+          />
+          <button
+            type="button"
+            disabled={!canCreate}
+            onClick={() => router.push("/sources/create")}
+            className="btn-primary px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50 md:col-start-4"
+          >
+            + New Source
+          </button>
+        </div>
         <div className="overflow-x-auto rounded-lg border border-slate-200">
           <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">
@@ -63,26 +98,27 @@ export default function SourcesPage() {
                 <th className="px-3 py-2 font-medium">Email</th>
                 <th className="px-3 py-2 font-medium">Phone</th>
                 <th className="px-3 py-2 font-medium">Acquisitions</th>
+                <th className="px-3 py-2 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">
                     Loading sources...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-red-600">
+                  <td colSpan={7} className="px-3 py-8 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && visibleRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">
                     No sources found.
                   </td>
                 </tr>
@@ -97,6 +133,35 @@ export default function SourcesPage() {
                     <td className="px-3 py-2">{row.email || "-"}</td>
                     <td className="px-3 py-2">{row.phone || "-"}</td>
                     <td className="px-3 py-2">{row.acquisitionCount}</td>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/sources/${row.sourceId}`)}
+                          className="text-blue-700 hover:underline"
+                        >
+                          View
+                        </button>
+                        {canUpdate ? (
+                          <button
+                            type="button"
+                            onClick={() => router.push(`/sources/${row.sourceId}/edit`)}
+                            className="text-slate-700 hover:underline"
+                          >
+                            Edit
+                          </button>
+                        ) : null}
+                        {canDelete ? (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(row.sourceId)}
+                            className="text-red-600 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        ) : null}
+                      </div>
+                    </td>
                   </tr>
                 ))}
             </tbody>

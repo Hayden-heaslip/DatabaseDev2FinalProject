@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
 
 type AcquisitionRow = {
   acquisitionId: number;
@@ -16,6 +18,8 @@ type AcquisitionRow = {
 };
 
 export default function AcquisitionsPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [rows, setRows] = useState<AcquisitionRow[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -46,15 +50,28 @@ export default function AcquisitionsPage() {
 
   const visibleRows = useMemo(() => rows.slice(0, 50), [rows]);
 
+  const role = String(user?.role || "").toLowerCase();
+  const canCreate = role === "admin" || role === "manager";
+
   return (
     <AppShell pageTitle="Acquisitions" pageDescription="Track inventory purchases and source records.">
       <section className="space-y-4">
-        <input
-          placeholder="Search source or item"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm md:w-80"
-        />
+        <div className="grid gap-3 md:grid-cols-4">
+          <input
+            placeholder="Search source or item"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input md:col-span-2"
+          />
+          <button
+            type="button"
+            disabled={!canCreate}
+            onClick={() => router.push("/acquisitions/create")}
+            className="btn-primary px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50 md:col-start-4"
+          >
+            + Record Acquisition
+          </button>
+        </div>
         <div className="overflow-x-auto rounded-lg border border-slate-200">
           <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">

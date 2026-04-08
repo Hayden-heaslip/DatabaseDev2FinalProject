@@ -37,6 +37,8 @@ export default function LoginPage() {
     <main className="min-h-screen bg-[#0f302a] text-[#f6edd7]">
       <div className="mx-auto grid min-h-screen w-full max-w-[1400px] gap-8 px-6 py-10 lg:grid-cols-[0.82fr_1.18fr]">
         <section className="order-2 relative self-center rounded-3xl border border-[#ddb85b]/35 bg-[#124138] p-7 shadow-xl shadow-black/25 md:p-8 lg:order-1">
+          <div className="paper-grain absolute inset-0 rounded-3xl opacity-40" />
+          <div className="linen-grain absolute inset-0 rounded-3xl opacity-30" />
           <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_15%,rgba(221,184,91,0.1),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(221,184,91,0.03),transparent_40%)]" />
           <div className="relative">
             <div className="flex items-center gap-3">
@@ -59,21 +61,21 @@ export default function LoginPage() {
               with confidence.
             </h1>
             <p className="mt-4 max-w-xl text-lg leading-relaxed text-[#f1e1ba]">
-              Built for rare books, antique maps, and periodicals. Track source,
-              condition, and market pricing with a workflow designed for the Reading Room.
+              Built for rare books and antique maps. Record provenance, track condition,
+              and manage pricing with confidence.
             </p>
 
             <div className="mt-7">
               <p className="text-xs uppercase tracking-[0.18em] text-[#ddc27c]">Collection Focus</p>
               <p className="mt-2 brand-serif text-2xl text-[#f5e7c1]">
-                Estate finds, dealer acquisitions, and collector consignments.
+                Curated acquisitions for a small but serious reading room business.
               </p>
             </div>
           </div>
         </section>
 
         <section className="order-1 flex items-center lg:order-2">
-          <div className="w-full rounded-3xl border border-[#d8c79e] bg-[#fffaf0] p-7 shadow-xl shadow-black/35 md:p-9">
+          <div className="paper-grain w-full rounded-3xl border border-[#d8c79e] bg-[#fffaf0] p-7 shadow-xl shadow-black/35 md:p-9">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.2em] text-[#5f7570]">
                 Staff Access Portal
@@ -84,7 +86,7 @@ export default function LoginPage() {
             </div>
             <h2 className="mt-2 brand-serif text-4xl text-[#173b33]">Sign In</h2>
             <p className="mt-2 text-sm text-[#556963]">
-              Access inventory, customer activity, acquisitions, and pricing history.
+              Professional inventory management for acquisitions, provenance, and pricing history.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-7 space-y-5">
