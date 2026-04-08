@@ -13,6 +13,8 @@ export async function POST(req) {
     value: "",
     path: "/",
     httpOnly: true,
+    secure: true,
+    sameSite: "none",
     maxAge: 0,
   });
 

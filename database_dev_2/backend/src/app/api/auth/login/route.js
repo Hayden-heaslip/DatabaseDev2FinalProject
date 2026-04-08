@@ -36,8 +36,10 @@ export async function POST(req) {
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      // Frontend and backend are on different domains (Vercel/Render),
+      // so cross-site cookie settings are required for auth to persist.
+      secure: true,
+      sameSite: "none",
       path: "/",
       maxAge: 60 * 60 * 24,
     });
