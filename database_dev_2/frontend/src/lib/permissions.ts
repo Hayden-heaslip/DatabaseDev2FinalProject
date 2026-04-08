@@ -48,7 +48,7 @@ export function canAccess(role: string | undefined, action: string) {
       "READ_PROVENANCE",
       "UPDATE_PRICING",
     ],
-    employee: ["READ_ITEM", "UPDATE_ITEM", "READ_CUSTOMER", "READ_SOURCE", "READ_ACQUISITION", "READ_SALE"],
+    employee: ["READ_ITEM", "UPDATE_ITEM", "READ_PRICING", "READ_CUSTOMER", "READ_SOURCE", "READ_ACQUISITION", "READ_SALE"],
   };
 
   if (!role) return false;

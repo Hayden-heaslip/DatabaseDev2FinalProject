@@ -9,7 +9,7 @@ This file defines the expected authentication and authorization policy for backe
 
 ## Business Role Mapping
 - `admin` = Connor (owner)
-- `manager` = Lucia
+- `manager` = Luciia
 - `employee` = Derek
 
 ## Sensitive Data Rules

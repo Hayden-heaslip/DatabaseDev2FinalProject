@@ -68,6 +68,7 @@ export const PERMISSIONS = {
   employee: [
     "READ_ITEM",
     "UPDATE_ITEM",
+    "READ_PRICING",
     "READ_CUSTOMER",
     "READ_SOURCE",
     "READ_ACQUISITION",

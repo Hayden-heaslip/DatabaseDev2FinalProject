@@ -81,7 +81,7 @@ async function main() {
   });
 
   const connorPassword = await bcrypt.hash("Connor123!", 10);
-  const luciaPassword = await bcrypt.hash("Lucia123!", 10);
+  const luciiaPassword = await bcrypt.hash("Luciia123!", 10);
   const derekPassword = await bcrypt.hash("Derek123!", 10);
 
   await prisma.user.createMany({
@@ -97,10 +97,10 @@ async function main() {
       },
       {
         role_id: managerRole.role_id,
-        first_name: "Lucia",
+        first_name: "Luciia",
         last_name: "Whyte",
-        email: "lucia@britannicus.local",
-        password_hash: luciaPassword,
+        email: "luciia@britannicus.local",
+        password_hash: luciiaPassword,
         is_active: true,
         created_date: new Date(),
       },
