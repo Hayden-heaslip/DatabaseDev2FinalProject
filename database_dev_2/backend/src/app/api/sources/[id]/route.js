@@ -1,7 +1,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
-import { hasPermission } from "@/lib/permissions";
+import { canReadDealerContact, canReadPricing, hasPermission } from "@/lib/permissions";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -65,13 +65,15 @@ export async function GET(request, { params }) {
       return withCors(request, Response.json({ success: false, error: "Source not found" }, { status: 404 }));
     }
 
+    const includePricing = canReadPricing(sessionUser.role);
+    const includeDealerContact = canReadDealerContact(sessionUser.role);
     const source = {
       sourceId: row.source_id,
       name: row.name,
-      email: row.email,
-      phone: row.phone,
+      email: includeDealerContact ? row.email : null,
+      phone: includeDealerContact ? row.phone : null,
       type: toType(row),
-      dealer: row.dealer,
+      dealer: includeDealerContact ? row.dealer : null,
       collector: row.collector,
       estate: row.estate,
       acquisitionCount: row.acquisitions.length,
@@ -79,7 +81,7 @@ export async function GET(request, { params }) {
         acquisitionId: a.acquisition_id,
         itemId: a.item_id,
         itemTitle: a.item?.title || "Unknown Item",
-        acquisitionCost: Number(a.item?.acquisition_cost ?? 0),
+        acquisitionCost: includePricing ? Number(a.item?.acquisition_cost ?? 0) : null,
         acquisitionDate: a.item?.acquisition_date || null,
       })),
     };

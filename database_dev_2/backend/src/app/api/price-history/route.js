@@ -18,7 +18,7 @@ export async function GET(request) {
         "OPTIONS",
       ]);
     }
-    if (!hasPermission(sessionUser.role, "READ_ITEM")) {
+    if (!hasPermission(sessionUser.role, "READ_PRICING")) {
       return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }), [
         "GET",
         "POST",
@@ -85,7 +85,7 @@ export async function POST(request) {
         "OPTIONS",
       ]);
     }
-    if (!hasPermission(sessionUser.role, "UPDATE_ITEM")) {
+    if (!hasPermission(sessionUser.role, "UPDATE_PRICING")) {
       return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }), [
         "GET",
         "POST",

@@ -2,7 +2,7 @@
 
 html,
 body {
-  font-family: Inter, Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   background: radial-gradient(circle at top, #fbfaf5 0%, #f3efe3 46%, #efebde 100%);
   color: #132b25;
 }

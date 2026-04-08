@@ -7,7 +7,7 @@ export default defineConfig({
     seed: 'tsx prisma/seed.ts', 
   },
   datasource: {
-    // Use the pooled URL to help with connection stability
-    url: process.env.DIRECT_URL, // was DATABASE_URL
+    // Use the pooled URL to help with connection stability.
+    url: process.env.DATABASE_URL,
   }
 })

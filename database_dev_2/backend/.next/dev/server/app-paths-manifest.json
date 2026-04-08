@@ -1,1 +1,9 @@
-{}
+{
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/items/route": "app/api/items/route.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
+  "/api/items/[id]/route": "app/api/items/[id]/route.js",
+  "/api/publishers/route": "app/api/publishers/route.js",
+  "/api/authors/route": "app/api/authors/route.js",
+  "/api/cartographers/route": "app/api/cartographers/route.js"
+}

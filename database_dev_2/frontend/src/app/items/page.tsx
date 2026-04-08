@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
-import { canAccess } from "@/lib/permissions";
+import { canAccess, canReadPricing } from "@/lib/permissions";
 
 type ItemRow = {
   itemId: number;
   title: string;
   category: string;
   condition: string;
-  askingPrice: number;
+  askingPrice: number | null;
   status: string;
 };
 
@@ -69,7 +69,13 @@ export default function ItemsPage() {
     return () => {
       active = false;
     };
-  }, [search, page, limit]);
+  }, [search]);
+
+  const role = String(user?.role || "").toLowerCase();
+  const canCreate = canAccess(role, "CREATE_ITEM");
+  const canUpdate = canAccess(role, "UPDATE_ITEM");
+  const canDelete = canAccess(role, "DELETE_ITEM");
+  const canViewPricing = canReadPricing(role);
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
@@ -77,16 +83,14 @@ export default function ItemsPage() {
       
       const minPriceNumber = minPrice.trim() === "" ? null : Number(minPrice);
       const matchesMinPrice =
-        minPriceNumber === null || Number.isNaN(minPriceNumber) ? true : row.askingPrice >= minPriceNumber;
+        !canViewPricing || minPriceNumber === null || Number.isNaN(minPriceNumber)
+          ? true
+          : Number(row.askingPrice ?? 0) >= minPriceNumber;
       return matchesCategory && matchesMinPrice;
     });
-  }, [rows, categoryFilter, minPrice]);
+  }, [rows, categoryFilter, minPrice, canViewPricing]);
 
-  const visibleRows = filteredRows;
-  const role = String(user?.role || "").toLowerCase();
-  const canCreate = canAccess(role, "CREATE_ITEM");
-  const canUpdate = canAccess(role, "UPDATE_ITEM");
-  const canDelete = canAccess(role, "DELETE_ITEM");
+  const visibleRows = useMemo(() => filteredRows.slice(0, 30), [filteredRows]);
 
   async function handleDelete(itemId: number) {
     const confirmed = window.confirm("Delete this item?");
@@ -139,6 +143,7 @@ export default function ItemsPage() {
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
             className="input text-sm"
+            disabled={!canViewPricing}
           />
           <button
             disabled={!canCreate}
@@ -214,7 +219,9 @@ export default function ItemsPage() {
                   </div>
                   <div>
                     <p className="data-label">Asking Price</p>
-                    <p className="data-value">${row.askingPrice.toFixed(2)}</p>
+                    <p className="data-value">
+                      {canViewPricing && row.askingPrice !== null ? `$${row.askingPrice.toFixed(2)}` : "Restricted"}
+                    </p>
                   </div>
                   <div>
                     <p className="data-label">Status</p>
@@ -296,7 +303,9 @@ export default function ItemsPage() {
                     </td>
                     <td className="px-4 py-3">{row.category}</td>
                     <td className="px-4 py-3">{row.condition}</td>
-                    <td className="px-4 py-3">${row.askingPrice.toFixed(2)}</td>
+                    <td className="px-4 py-3">
+                      {canViewPricing && row.askingPrice !== null ? `$${row.askingPrice.toFixed(2)}` : "Restricted"}
+                    </td>
                     <td className="px-4 py-3 text-slate-500">
                       <div className="flex items-center gap-3">
                         <button onClick={() => router.push(`/items/${row.itemId}`)} className="text-[#184a40] hover:underline">

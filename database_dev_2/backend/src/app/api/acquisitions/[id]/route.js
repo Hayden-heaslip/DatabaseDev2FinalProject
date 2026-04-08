@@ -1,7 +1,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
-import { hasPermission } from "@/lib/permissions";
+import { canReadPricing, hasPermission } from "@/lib/permissions";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -58,6 +58,7 @@ export async function GET(request, { params }) {
       return withCors(request, Response.json({ success: false, error: "Acquisition not found" }, { status: 404 }));
     }
 
+    const includePricing = canReadPricing(sessionUser.role);
     const acquisition = {
       acquisitionId: row.acquisition_id,
       sourceId: row.source_id,
@@ -72,7 +73,7 @@ export async function GET(request, { params }) {
       itemId: row.item_id,
       itemTitle: row.item?.title || "Unknown Item",
       acquisitionDate: row.item?.acquisition_date || null,
-      acquisitionCost: Number(row.item?.acquisition_cost ?? 0),
+      acquisitionCost: includePricing ? Number(row.item?.acquisition_cost ?? 0) : null,
       itemCategory: row.item?.book ? "Book" : row.item?.map ? "Map" : row.item?.periodical ? "Magazine" : "Other",
       itemCondition: row.item?.condition || null,
     };

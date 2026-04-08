@@ -31,6 +31,11 @@ export const PERMISSIONS = {
     "DELETE_USER",
 
     "READ_AUDIT_LOGS",
+
+    "READ_PRICING",
+    "READ_DEALER_CONTACT",
+    "READ_PROVENANCE",
+    "UPDATE_PRICING",
   ],
 
   manager: [
@@ -53,10 +58,17 @@ export const PERMISSIONS = {
     "READ_SALE",
 
     "READ_AUDIT_LOGS",
+
+    "READ_PRICING",
+    "READ_DEALER_CONTACT",
+    "READ_PROVENANCE",
+    "UPDATE_PRICING",
   ],
 
   employee: [
     "READ_ITEM",
+    "UPDATE_ITEM",
+    "READ_PRICING",
     "READ_CUSTOMER",
     "READ_SOURCE",
     "READ_ACQUISITION",
@@ -81,4 +93,20 @@ export function requirePermission(role, action) {
     error.status = 403;
     throw error;
   }
+}
+
+export function canReadPricing(role) {
+  return hasPermission(role, "READ_PRICING");
+}
+
+export function canReadDealerContact(role) {
+  return hasPermission(role, "READ_DEALER_CONTACT");
+}
+
+export function canReadProvenance(role) {
+  return hasPermission(role, "READ_PROVENANCE");
+}
+
+export function canUpdatePricing(role) {
+  return hasPermission(role, "UPDATE_PRICING");
 }

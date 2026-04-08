@@ -32,12 +32,12 @@ export async function createItem(payload: CreateItemPayload) {
 }
 
 export type UpdateItemPayload = {
-  title: string;
+  title?: string;
   description?: string | null;
-  condition: string;
-  acquisition_date: string;
-  acquisition_cost: number;
-  selling_price: number;
+  condition?: string;
+  acquisition_date?: string;
+  acquisition_cost?: number;
+  selling_price?: number;
   image_url?: string | null;
   note?: string | null;
 };

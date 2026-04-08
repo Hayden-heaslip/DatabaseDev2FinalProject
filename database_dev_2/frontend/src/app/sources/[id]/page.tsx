@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { apiFetch } from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
+import { canAccess, canReadDealerContact, canReadPricing } from "@/lib/permissions";
 
 type SourceDetails = {
   sourceId: number;
@@ -16,7 +18,7 @@ type SourceDetails = {
     acquisitionId: number;
     itemId: number;
     itemTitle: string;
-    acquisitionCost: number;
+    acquisitionCost: number | null;
     acquisitionDate?: string | null;
   }>;
 };
@@ -24,9 +26,14 @@ type SourceDetails = {
 export default function SourceDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const [source, setSource] = useState<SourceDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const role = String(user?.role || "").toLowerCase();
+  const showPricing = canReadPricing(role);
+  const showDealerContact = canReadDealerContact(role);
+  const canEditSource = canAccess(role, "UPDATE_SOURCE");
 
   useEffect(() => {
     let active = true;
@@ -57,8 +64,8 @@ export default function SourceDetailsPage() {
           <div className="grid gap-4 rounded-xl border border-stone-200 bg-stone-50 p-4 md:grid-cols-2">
             <p><span className="font-medium">Name:</span> {source.name}</p>
             <p><span className="font-medium">Type:</span> {source.type}</p>
-            <p><span className="font-medium">Email:</span> {source.email || "-"}</p>
-            <p><span className="font-medium">Phone:</span> {source.phone || "-"}</p>
+            <p><span className="font-medium">Email:</span> {showDealerContact ? source.email || "-" : "Restricted"}</p>
+            <p><span className="font-medium">Phone:</span> {showDealerContact ? source.phone || "-" : "Restricted"}</p>
             <p><span className="font-medium">Acquisitions:</span> {source.acquisitionCount}</p>
           </div>
 
@@ -84,7 +91,9 @@ export default function SourceDetailsPage() {
                       <tr key={a.acquisitionId} className="border-t border-slate-100">
                         <td className="px-3 py-2">{a.acquisitionId}</td>
                         <td className="px-3 py-2">{a.itemTitle}</td>
-                        <td className="px-3 py-2">${Number(a.acquisitionCost).toFixed(2)}</td>
+                        <td className="px-3 py-2">
+                          {showPricing && a.acquisitionCost !== null ? `$${Number(a.acquisitionCost).toFixed(2)}` : "Restricted"}
+                        </td>
                         <td className="px-3 py-2">
                           {a.acquisitionDate ? new Date(a.acquisitionDate).toLocaleDateString("en-CA") : "-"}
                         </td>
@@ -97,9 +106,11 @@ export default function SourceDetailsPage() {
           </div>
 
           <div className="flex gap-3">
-            <button type="button" onClick={() => router.push(`/sources/${params.id}/edit`)} className="btn-primary px-4 py-2">
-              Edit Source
-            </button>
+            {canEditSource && (
+              <button type="button" onClick={() => router.push(`/sources/${params.id}/edit`)} className="btn-primary px-4 py-2">
+                Edit Source
+              </button>
+            )}
             <button type="button" onClick={() => router.push("/sources")} className="btn-secondary px-4 py-2">
               Back
             </button>
