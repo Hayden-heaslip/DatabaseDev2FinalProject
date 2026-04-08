@@ -43,8 +43,8 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-      <h3 className="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+    <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+      <h3 className="mb-4 border-b border-stone-200 pb-2 text-base font-bold text-slate-900">
         {title}
       </h3>
       <div className="grid md:grid-cols-2 gap-5">{children}</div>
@@ -109,7 +109,7 @@ function SelectWithAdd({
       </select>
 
       {showAdd && (
-        <div className="mt-2 p-3 bg-white border border-slate-300 rounded-lg flex gap-2 items-center">
+        <div className="mt-2 flex items-center gap-2 rounded-lg border border-stone-300 bg-stone-50 p-3">
           <input
             className="input flex-1 text-sm"
             placeholder={`Enter ${addingLabel} name…`}
@@ -127,7 +127,7 @@ function SelectWithAdd({
             type="button"
             onClick={handleAdd}
             disabled={adding || !newName.trim()}
-            className="bg-slate-900 text-white text-sm px-3 py-2 rounded-lg hover:bg-slate-800 disabled:opacity-50 whitespace-nowrap"
+            className="btn-primary whitespace-nowrap px-3 py-2 text-sm disabled:opacity-50"
           >
             {adding ? "Saving…" : "Add"}
           </button>
@@ -380,9 +380,9 @@ export default function CreateItemPage() {
   return (
     <AppShell pageTitle="Add Item" pageDescription="Add a new item to your inventory">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Add Item</h1>
-          <p className="text-slate-500 mt-1">
+        <div className="mb-6 rounded-xl border border-stone-200 bg-stone-50 p-4">
+          <h1 className="brand-serif text-2xl font-bold text-slate-800">Add Item</h1>
+          <p className="mt-1 text-slate-500">
             Fill in the details below. Fields marked with{" "}
             <span className="text-red-500 font-bold">*</span> are required.
           </p>
@@ -391,7 +391,7 @@ export default function CreateItemPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* ── SECTION 1: Basic Info ── */}
-          <SectionCard title=" Basic Information">
+          <SectionCard title="Basic Information">
 
             <Field>
               <Label required>Item Title</Label>
@@ -418,9 +418,9 @@ export default function CreateItemPage() {
                 }}
                 className="input text-base"
               >
-                <option value="Book">  Book</option>
-                <option value="Map"> Map</option>
-                <option value="Magazine">  Magazine / Periodical</option>
+                  <option value="Book">Book</option>
+                  <option value="Map">Map</option>
+                  <option value="Magazine">Magazine / Periodical</option>
               </select>
             </Field>
 
@@ -597,7 +597,7 @@ export default function CreateItemPage() {
 
           {/* ── SECTION 3: Map Details ── */}
           {category === "Map" && (
-            <SectionCard title="🗺️  Map Details">
+            <SectionCard title="Map Details">
 
               <SelectWithAdd
                 label="Cartographer"
@@ -666,7 +666,7 @@ export default function CreateItemPage() {
 
           {/* ── SECTION 4: Magazine / Periodical Details ── */}
           {category === "Magazine" && (
-            <SectionCard title=" Magazine / Periodical Details">
+            <SectionCard title="Magazine / Periodical Details">
 
               <SelectWithAdd
                 label="Publisher"
@@ -730,14 +730,14 @@ export default function CreateItemPage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-slate-900 text-white text-base font-semibold px-8 py-3 rounded-xl hover:bg-slate-700 disabled:opacity-50 transition-colors"
+              className="btn-primary px-8 py-3 text-base disabled:opacity-50"
             >
               {saving ? "Saving…" : "Add Item to Inventory"}
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="bg-white border border-slate-300 text-slate-700 text-base font-medium px-6 py-3 rounded-xl hover:bg-slate-50 transition-colors"
+              className="btn-secondary px-6 py-3 text-base"
             >
               Cancel
             </button>

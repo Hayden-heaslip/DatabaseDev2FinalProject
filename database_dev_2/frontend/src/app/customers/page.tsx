@@ -73,38 +73,40 @@ export default function CustomersPage() {
   return (
     <AppShell pageTitle="Customers" pageDescription="Track customers and their activity.">
       <section className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-4">
-          <input
-            placeholder="Search customer by name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="Email or phone"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-          <div className="rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-500">
-            All customer types
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 md:p-4">
+          <div className="grid gap-3 md:grid-cols-4">
+            <input
+              placeholder="Search customer by name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input text-sm"
+            />
+            <input
+              placeholder="Email or phone"
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              className="input text-sm"
+            />
+            <div className="rounded-xl border border-stone-300 bg-stone-100 px-3 py-2 text-sm text-stone-600">
+              All customer types
+            </div>
+            <button
+              disabled={!canCreate}
+              onClick={() => router.push("/customers/create")}
+              className="btn-primary px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              + New Customer
+            </button>
           </div>
-          <button
-            disabled={!canCreate}
-            onClick={() => router.push("/customers/create")}
-            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            + New Customer
-          </button>
         </div>
 
         <p className="text-xs text-slate-500">
           Signed in as <span className="font-semibold">{role || "unknown"}</span>. {canDelete ? "You can view, edit, and delete customers." : canUpdate ? "You can view and edit customers." : "You can only view customers."}
         </p>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="table-shell overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-600">
+            <thead className="bg-stone-50 text-left text-slate-600">
               <tr>
                 <th className="px-3 py-2 font-medium">Customer ID</th>
                 <th className="px-3 py-2 font-medium">Name</th>
@@ -141,7 +143,7 @@ export default function CustomersPage() {
               {!loading &&
                 !error &&
                 rows.map((row) => (
-                  <tr key={row.customerId} className="border-t border-slate-100">
+                  <tr key={row.customerId} className="border-t border-slate-100 hover:bg-stone-50/70">
                     <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.customerId}</td>
                     <td className="px-3 py-2">{row.name}</td>
                     <td className="px-3 py-2">Customer</td>
@@ -153,7 +155,7 @@ export default function CustomersPage() {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => router.push(`/customers/${row.customerId}`)}
-                          className="text-blue-700 hover:underline"
+                          className="font-medium text-blue-700 hover:underline"
                         >
                           View
                         </button>

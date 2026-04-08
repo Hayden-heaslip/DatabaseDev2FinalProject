@@ -1,5 +1,87 @@
 @import "tailwindcss";
 
+html,
 body {
   font-family: Inter, Arial, Helvetica, sans-serif;
+  background: radial-gradient(circle at top, #fbfaf5 0%, #f5f1e6 45%, #f1efe7 100%);
+  color: #0f172a;
+}
+
+.brand-serif {
+  font-family: "Times New Roman", Georgia, serif;
+  letter-spacing: 0.015em;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #b9c4c0;
+  border-radius: 0.75rem;
+  background: #fffefb;
+  padding: 0.6rem 0.8rem;
+  color: #1d3a34;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.input::placeholder {
+  color: #82908b;
+}
+
+.input:hover {
+  border-color: #7f9a92;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1f4f45;
+  box-shadow: 0 0 0 3px rgba(31, 79, 69, 0.14);
+}
+
+.btn-primary {
+  border-radius: 0.75rem;
+  background: #103b33;
+  color: #f5e8c8;
+  font-weight: 600;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background: #15473d;
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  border-radius: 0.75rem;
+  border: 1px solid #c8b27a;
+  background: #f9f3e3;
+  color: #2f473f;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: #f4ead2;
+}
+
+.table-shell {
+  overflow: hidden;
+  border-radius: 0.85rem;
+  border: 1px solid #d8d6cb;
+  background: #fffefb;
+}
+
+/* Warm, old-paper feeling for common table sections */
+table thead {
+  background-color: #f2eddf;
+}
+
+table th {
+  color: #2d4a43;
+  font-weight: 600;
+}
+
+table td {
+  color: #253f39;
 }

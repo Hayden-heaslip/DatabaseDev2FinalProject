@@ -103,17 +103,18 @@ export default function ItemsPage() {
   return (
     <AppShell pageTitle="Items" pageDescription="Browse and manage inventory items.">
       <section className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-5">
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 md:p-4">
+          <div className="grid gap-3 md:grid-cols-5">
           <input
             placeholder="Search title / ID"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="input text-sm"
           />
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="input text-sm"
           >
             <option value="All">All Categories</option>
             <option value="Book">Book</option>
@@ -127,24 +128,25 @@ export default function ItemsPage() {
             min="0"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="input text-sm"
           />
           <button
             disabled={!canCreate}
             onClick={() => router.push("/items/create")}
-            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-primary px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
             + Add Item
           </button>
+        </div>
         </div>
         <p className="text-xs text-slate-500">
           Signed in as <span className="font-semibold">{role || "unknown"}</span>.{" "}
           {canDelete ? "You can view, edit, and delete items." : canUpdate ? "You can view and edit items." : "You can only view items."}
         </p>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="table-shell overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-600">
+            <thead className="bg-stone-50 text-left text-slate-600">
               <tr>
                 <th className="px-3 py-2 font-medium">Item ID</th>
                 <th className="px-3 py-2 font-medium">Title</th>
@@ -179,12 +181,12 @@ export default function ItemsPage() {
               {!loading &&
                 !error &&
                 visibleRows.map((row) => (
-                  <tr key={row.itemId} className="border-t border-slate-100">
+                  <tr key={row.itemId} className="border-t border-slate-100 hover:bg-stone-50/70">
                     <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.itemId}</td>
                     <td className="px-3 py-2">
                       <button
                         onClick={() => router.push(`/items/${row.itemId}`)}
-                        className="text-left text-blue-700 hover:underline"
+                        className="text-left font-medium text-blue-700 hover:underline"
                       >
                         {row.title}
                       </button>
